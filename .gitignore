@@ -5,7 +5,7 @@ Thumbs.db
 .Trashes
 
 # unity
-Builds/
+/Builds/
 Library/
 Logs/
 obj/
@@ -28,6 +28,7 @@ PlayMode.csproj
 EditMode.csproj
 Tests.csproj
 openrelay-cdk.sln
+openrelay-cdk-unity.sln
 
 # visual studio
 Debug/
