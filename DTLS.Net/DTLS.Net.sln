@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.960
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTLS.Net", "DTLS.Net.csproj", "{572BE31F-46B2-4459-B9B7-C251B4E965C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{572BE31F-46B2-4459-B9B7-C251B4E965C4}.Debug|x86.ActiveCfg = Debug|x86
+		{572BE31F-46B2-4459-B9B7-C251B4E965C4}.Debug|x86.Build.0 = Debug|x86
+		{572BE31F-46B2-4459-B9B7-C251B4E965C4}.Release|x86.ActiveCfg = Release|x86
+		{572BE31F-46B2-4459-B9B7-C251B4E965C4}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85DB29F2-F3EE-423B-8210-3FB4BD547F37}
+	EndGlobalSection
+EndGlobal

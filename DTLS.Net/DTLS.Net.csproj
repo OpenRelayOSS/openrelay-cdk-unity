@@ -1,0 +1,150 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{572BE31F-46B2-4459-B9B7-C251B4E965C4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>DTLS.Net</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>dtlsnet</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>packages\BouncyCastle.Crypto.dll.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Certificates\CertificateInfo.cs" />
+    <Compile Include="Certificates\Certificates.cs" />
+    <Compile Include="Certificates\CertificateSubject.cs" />
+    <Compile Include="Certificates\TCertificateFormat.cs" />
+    <Compile Include="CipherSuite\CipherSuites.cs" />
+    <Compile Include="CipherSuite\SignatureHashAlgorithm.cs" />
+    <Compile Include="CipherSuite\TCipherSuite.cs" />
+    <Compile Include="CipherSuite\THashAlgorithm.cs" />
+    <Compile Include="CipherSuite\TKeyExchangeAlgorithm.cs" />
+    <Compile Include="CipherSuite\TPseudorandomFunction.cs" />
+    <Compile Include="CipherSuite\TSignatureAlgorithm.cs" />
+    <Compile Include="Client.cs" />
+    <Compile Include="DTLSContext.cs" />
+    <Compile Include="EllipticCurves\ECDHE.cs" />
+    <Compile Include="EllipticCurves\EllipticCurve.cs" />
+    <Compile Include="EllipticCurves\EllipticCurveFactory.cs" />
+    <Compile Include="EllipticCurves\EllipticCurvePoint.cs" />
+    <Compile Include="EllipticCurves\PrimeFiniteFieldCurve.cs" />
+    <Compile Include="EllipticCurves\TEllipticCurve.cs" />
+    <Compile Include="EllipticCurves\TEllipticCurveBasisType.cs" />
+    <Compile Include="EllipticCurves\TEllipticCurveType.cs" />
+    <Compile Include="HandshakeInfo.cs" />
+    <Compile Include="HandshakeMessages\Certificate.cs" />
+    <Compile Include="HandshakeMessages\CertificateRequest.cs" />
+    <Compile Include="HandshakeMessages\CertificateVerify.cs" />
+    <Compile Include="HandshakeMessages\ClientHello.cs" />
+    <Compile Include="HandshakeMessages\Extensions\ClientCertificateTypeExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\EllipticCurvePointFormatsExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\EllipticCurvesExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\Extension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\Extensions.cs" />
+    <Compile Include="HandshakeMessages\Extensions\IExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\ServerCertificateTypeExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\SignatureAlgorithmsExtension.cs" />
+    <Compile Include="HandshakeMessages\Extensions\TEllipticCurvePointFormat.cs" />
+    <Compile Include="HandshakeMessages\Extensions\TExtensionType.cs" />
+    <Compile Include="HandshakeMessages\Finished.cs" />
+    <Compile Include="HandshakeMessages\HelloRequest.cs" />
+    <Compile Include="HandshakeMessages\HelloVerifyRequest.cs" />
+    <Compile Include="HandshakeMessages\IHandshakeMessage.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\ClientKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\EllipticCurves\ECDHEClientKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\EllipticCurves\ECDHEKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\EllipticCurves\ECDHEPSKClientKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\EllipticCurves\ECDHEPSKServerKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\EllipticCurves\ECDHEServerKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\PSK\PSKClientKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\PSK\PSKKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\PSK\PSKServerKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\KeyExchange\ServerKeyExchange.cs" />
+    <Compile Include="HandshakeMessages\RandomData.cs" />
+    <Compile Include="HandshakeMessages\ServerHello.cs" />
+    <Compile Include="HandshakeMessages\ServerHelloDone.cs" />
+    <Compile Include="HandshakeMessages\THandshakeType.cs" />
+    <Compile Include="IKeyExchangeState.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="PSK\PSKIdentities.cs" />
+    <Compile Include="PSK\PSKIdentity.cs" />
+    <Compile Include="Records\AlertRecord.cs" />
+    <Compile Include="Records\ChangeCipherSpecRecord.cs" />
+    <Compile Include="Records\DTLSRecord.cs" />
+    <Compile Include="Records\DTLSRecords.cs" />
+    <Compile Include="Records\HandshakeRecord.cs" />
+    <Compile Include="Records\TRecordType.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="ServerHandshake.cs" />
+    <Compile Include="Session.cs" />
+    <Compile Include="Sessions.cs" />
+    <Compile Include="TAlertDescription.cs" />
+    <Compile Include="TAlertLevel.cs" />
+    <Compile Include="TCertificateType.cs" />
+    <Compile Include="TClientCertificateType.cs" />
+    <Compile Include="test\TestClient\Program.cs" />
+    <Compile Include="test\TestServer\Program.cs" />
+    <Compile Include="Util\NetworkByteOrderConverter.cs" />
+    <Compile Include="Util\TLSUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="doc\coding_style.md" />
+    <None Include="doc\rebasing_info.md" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="test\TestClient\Client.pem" />
+    <None Include="test\TestClient\project.json" />
+    <None Include="test\TestServer\project.json" />
+    <None Include="test\TestServer\TestServer.pem" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="doc\img.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>
