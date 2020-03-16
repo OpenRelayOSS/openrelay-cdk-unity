@@ -20,24 +20,22 @@ namespace Com.FurtherSystems.OpenRelay.Builds
 {
     public class OpenRelayCDKBuildMenu
     {
-        private static readonly string cdkPackagePrefix = "openrelay-cdk-";
-        private static readonly string cdkVersion = OpenRelayClient.UNITY_CDK_VERSION;
-        private static readonly string outputPath = "Builds";
-        private static readonly string unitypackage = ".unitypackage";
-        private static readonly string outputCdkPath = "Assets/OpenRelayCDK/Cdk";
-        private static readonly string outputDll = "OpenRelay.dll";
-        private static readonly string dllsRootPath = "Assets/OpenRelayCDK/Plugins";
-        private static readonly string sourceActiveRootPath = "Assets/OpenRelayCDKSource";
-        private static readonly string sourceInactiveRootPath = "OpenRelayCDKSource";
-        private static readonly string licenseName = "LICENSE";
-        private static readonly string licenseDestPath = "Assets/OpenRelayCDK";
-
         private static readonly string space = " ";
         private static readonly string logPrefix = "<color=black>[OpenRelay CDK Build]</color>  ";
-        
+        private static OpenRelayCDKBuildSettings settings = null;
+
+        static void LoadBuildSettings()
+        {
+            if (settings == null)
+            {
+                settings = AssetDatabase.LoadAssetAtPath<OpenRelayCDKBuildSettings>("Assets/Builds/OpenRelayCDKBuildSettings.asset");
+            }
+        }
+
         [MenuItem("OpenRelay CDK Build/Build ALL", true, 10)]
         static bool BuildALLValidate()
         {
+            LoadBuildSettings();
             return CheckInactiveSourceDirectory();
         }
 
@@ -53,6 +51,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Build Clean", true, 20)]
         static bool BuildCleanValidate()
         {
+            LoadBuildSettings();
             return CheckInactiveSourceDirectory();
         }
 
@@ -61,10 +60,10 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         {
             // building project path
             var currentPath = Directory.GetCurrentDirectory();
-            var createDir = currentPath + "/" + outputPath;
-            var outputDllPath = currentPath + "/" + outputPath + "/" + outputDll;
-            var licenseCopiedPath = licenseDestPath + "/" + licenseName;
-            var outputPackagepath = currentPath + "/" + outputPath + "/" + cdkPackagePrefix + cdkVersion + unitypackage;
+            var createDir = currentPath + "/" + settings.OutputPath;
+            var outputDllPath = currentPath + "/" + settings.OutputPath + "/" + settings.OutputDll;
+            var licenseCopiedPath = settings.LicenseDestPath + "/" + settings.LicenseName;
+            var outputPackagepath = currentPath + "/" + settings.OutputPath + "/" + settings.CDKPackagePrefix + settings.CDKBuildVersion + settings.UnitypackageSuffix;
 
             Directory.CreateDirectory(createDir);
             Debug.Log(logPrefix + "Create Directory " + createDir);
@@ -84,6 +83,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Switch Build Mode", true, 30)]
         static bool SwitchBuildPackageModeValidate()
         {
+            LoadBuildSettings();
             return CheckActiveSourceDirectory();
         }
 
@@ -97,6 +97,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Switch Source Develop Mode", true, 30)]
         static bool SwitchBuildDLLModeValidate()
         {
+            LoadBuildSettings();
             return !CheckActiveSourceDirectory();
         }
 
@@ -110,6 +111,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Build Unitypackage", true, 100)]
         static bool BuildUnitypackageValidate()
         {
+            LoadBuildSettings();
             return !CheckActiveSourceDirectory();
         }
 
@@ -118,12 +120,12 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         {
             // building project path
             var currentPath = Directory.GetCurrentDirectory();
-            var outputPackagePath = currentPath + "/" + outputPath + "/" + cdkPackagePrefix + cdkVersion + unitypackage;
-            var licenseSourcePath = licenseName;
-            var licenseCopyPath = licenseDestPath + "/" + licenseName;
+            var outputPackagePath = currentPath + "/" + settings.OutputPath + "/" + settings.CDKPackagePrefix + settings.CDKBuildVersion + settings.UnitypackageSuffix;
+            var licenseSourcePath = settings.LicenseName;
+            var licenseCopyPath = settings.LicenseDestPath + "/" + settings.LicenseName;
 
-            Directory.CreateDirectory(currentPath + "/" + outputPath);
-            Debug.Log(logPrefix + "Create Directory " + currentPath + "/" + outputPath);
+            Directory.CreateDirectory(currentPath + "/" + settings.OutputPath);
+            Debug.Log(logPrefix + "Create Directory " + currentPath + "/" + settings.OutputPath);
             File.Copy(licenseSourcePath, licenseCopyPath);
             Debug.Log(logPrefix + "CDK Build License Copy " + licenseSourcePath + " > " + licenseCopyPath + " Ok.");
             AssetDatabase.ExportPackage("Assets/OpenRelayCDK", outputPackagePath, ExportPackageOptions.Recurse);
@@ -136,6 +138,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Build DLL", true, 200)]
         static bool BuildDLLValidate()
         {
+            LoadBuildSettings();
             return !CheckActiveSourceDirectory();
         }
 
@@ -164,34 +167,34 @@ namespace Com.FurtherSystems.OpenRelay.Builds
             var smcsPath = basePath + "MonoBleedingEdge/bin/mcs";
 #endif
 
-            var useDLL = !string.IsNullOrEmpty(dllsRootPath);
+            var useDLL = !string.IsNullOrEmpty(settings.DllsRootPath);
 
             // building arguments
             var arguments = new StringBuilder(" -target:library ");
 
             // set output path
-            arguments.Append(string.Format(" -out:\"{0}/{1}\"", currentPath + "/" + outputCdkPath, outputDll));
+            arguments.Append(string.Format(" -out:\"{0}/{1}\"", currentPath + "/" + settings.OutputCDKPath, settings.OutputDll));
 
-            if (useDLL && !Directory.Exists(dllsRootPath))
+            if (useDLL && !Directory.Exists(settings.DllsRootPath))
             {
-                Debug.LogError(logPrefix + "DLLs root directory not found :" + dllsRootPath);
+                Debug.LogError(logPrefix + "DLLs root directory not found :" + settings.DllsRootPath);
                 return false;
             }
 
-            if (!Directory.Exists(sourceInactiveRootPath))
+            if (!Directory.Exists(settings.SourceInactiveRootPath))
             {
-                Debug.LogError(logPrefix + "Source files root directory not found :" + sourceInactiveRootPath);
+                Debug.LogError(logPrefix + "Source files root directory not found :" + settings.SourceInactiveRootPath);
                 return false;
             }
 
-            var dllPathList = (useDLL) ? new DirectoryInfo(dllsRootPath).GetFiles("*.dll", SearchOption.TopDirectoryOnly) : null;
+            var dllPathList = (useDLL) ? new DirectoryInfo(settings.DllsRootPath).GetFiles("*.dll", SearchOption.TopDirectoryOnly) : null;
             if (useDLL && (dllPathList == null || dllPathList.Length == 0))
             {
-                Debug.LogError(logPrefix + "DLLs not found :" + dllsRootPath);
+                Debug.LogError(logPrefix + "DLLs not found :" + settings.DllsRootPath);
                 return false;
             }
 
-            var sourcePathList = new DirectoryInfo(sourceInactiveRootPath).GetFiles("*.cs", SearchOption.AllDirectories);
+            var sourcePathList = new DirectoryInfo(settings.SourceInactiveRootPath).GetFiles("*.cs", SearchOption.AllDirectories);
             if (sourcePathList == null || sourcePathList.Length == 0)
             {
                 Debug.LogError(logPrefix + "Source Files not found :" + sourcePathList);
@@ -264,12 +267,14 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Test EditMode", false, 400)]
         static void TestEditMode()
         {
+            LoadBuildSettings();
             RunTests(TestMode.EditMode);
         }
 
         [MenuItem("OpenRelay CDK Build/Test PlayMode", false, 410)]
         static void TestPlayMode()
         {
+            LoadBuildSettings();
             RunTests(TestMode.PlayMode);
         }
 
@@ -280,34 +285,34 @@ namespace Com.FurtherSystems.OpenRelay.Builds
 
         private static bool CheckActiveSourceDirectory()
         {
-            return Directory.Exists(sourceActiveRootPath);
+            return Directory.Exists(settings.SourceActiveRootPath);
         }
 
         private static bool CheckInactiveSourceDirectory()
         {
-            return Directory.Exists(sourceInactiveRootPath);
+            return Directory.Exists(settings.SourceInactiveRootPath);
         }
 
         private static void ToActiveSourceDirectory()
         {
             var currentPath = Directory.GetCurrentDirectory();
-            var outputDllPath = currentPath + "/" + outputPath + "/" + outputDll;
-            var outputDllCdkPath = currentPath + "/" + outputCdkPath + "/" + outputDll;
-            File.Move(outputDllCdkPath + ".meta", outputDllPath + ".meta");
-            File.Move(outputDllCdkPath, outputDllPath);
-            File.Move(sourceInactiveRootPath + ".meta", sourceActiveRootPath + ".meta");
-            Directory.Move(sourceInactiveRootPath, sourceActiveRootPath);
+            var outputDllPath = currentPath + "/" + settings.OutputPath + "/" + settings.OutputDll;
+            var outputDllCdkPath = currentPath + "/" + settings.OutputCDKPath + "/" + settings.OutputDll;
+            try { File.Move(outputDllCdkPath + ".meta", outputDllPath + ".meta"); } catch (FileNotFoundException noe) { }
+            try { File.Move(outputDllCdkPath, outputDllPath); } catch(FileNotFoundException noe) {  }
+            try { File.Move(settings.SourceInactiveRootPath + ".meta", settings.SourceActiveRootPath + ".meta"); } catch(FileNotFoundException noe) {  }
+            Directory.Move(settings.SourceInactiveRootPath, settings.SourceActiveRootPath);
         }
 
         private static void ToInactiveSourceDirectory()
         {
             var currentPath = Directory.GetCurrentDirectory();
-            var outputDllPath = currentPath + "/" + outputPath + "/" + outputDll;
-            var outputDllCdkPath = currentPath + "/" + outputCdkPath + "/" + outputDll;
-            File.Move(outputDllPath + ".meta", outputDllCdkPath + ".meta");
-            File.Move(outputDllPath, outputDllCdkPath);
-            File.Move(sourceActiveRootPath + ".meta", sourceInactiveRootPath + ".meta");
-            Directory.Move(sourceActiveRootPath, sourceInactiveRootPath);
+            var outputDllPath = currentPath + "/" + settings.OutputPath + "/" + settings.OutputDll;
+            var outputDllCdkPath = currentPath + "/" + settings.OutputCDKPath + "/" + settings.OutputDll;
+            try { File.Move(outputDllPath + ".meta", outputDllCdkPath + ".meta"); } catch(FileNotFoundException noe) {  }
+            try { File.Move(outputDllPath, outputDllCdkPath); } catch (FileNotFoundException noe) { }
+            try { File.Move(settings.SourceActiveRootPath + ".meta", settings.SourceInactiveRootPath + ".meta"); } catch(FileNotFoundException noe) {  }
+            Directory.Move(settings.SourceActiveRootPath, settings.SourceInactiveRootPath);
         }
 
         private static void RunTests(TestMode testModeToRun)

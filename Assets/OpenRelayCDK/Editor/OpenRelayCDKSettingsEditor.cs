@@ -11,15 +11,6 @@ namespace Com.FurtherSystems.OpenRelay
         void OnEnable()
         {
             settings = target as OpenRelayCDKSettings;
-        } 
-        //public override void OnInspectorGUI()
-        //{
-        //    serializedObject.Update();
-        //    EditorGUILayout.TextField("ServerAddress", settings.ServerAddress.ToString());         //    EditorGUILayout.TextField("DealPort", settings.DealPort.ToString());         //    EditorGUILayout.TextField("SubPort", settings.SubPort.ToString());
-        //    EditorGUILayout.EnumFlagsField("CDKMode", settings.Mode);
-        //    EditorGUILayout.ColorField("LogLabelColor", settings.LogLabelColor);
-        //    EditorGUILayout.EnumFlagsField("LogVerboseLevel", settings.LogVerboseLevel);
-        //    serializedObject.ApplyModifiedProperties();
-        //}
+        }
     }
 }

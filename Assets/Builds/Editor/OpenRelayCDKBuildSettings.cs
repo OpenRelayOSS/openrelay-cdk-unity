@@ -8,6 +8,7 @@
 // OpenRelay Client Scripts.
 // </summary>
 //------------------------------------------------------------------------------
+using Com.FurtherSystems.OpenRelay;
 using System;
 using UnityEngine;
 
@@ -15,19 +16,25 @@ using UnityEngine;
 public class OpenRelayCDKBuildSettings : ScriptableObject
 {
     [SerializeField]
-    public string CDKBuildVersion;
+    public string CDKBuildVersion = OpenRelayClient.UNITY_CDK_VERSION;
     [SerializeField]
-    public string CDKBuildSpecificKeyword;
+    public string CDKPackagePrefix = "openrelay-cdk-";
     [SerializeField]
-    public string UnitypackageTargetPath;
+    public string UnitypackageSuffix = ".unitypackage";
     [SerializeField]
-    public string UnitypackageOutputPath;
+    public string OutputPath = "Builds";
     [SerializeField]
-    public string DLLOutputPath = "Assets/CDKBuilds/Output";
+    public string OutputCDKPath = "Assets/OpenRelayCDK/Cdk";
     [SerializeField]
-    public string DLLOutputName = "OpenRelay.dll";
+    public string OutputDll = "OpenRelay.dll";
     [SerializeField]
-    public string DLLsRootPath = "Assets/OpenRelay";
+    public string DllsRootPath = "Assets/OpenRelayCDK/Plugins";
     [SerializeField]
-    public string FIlesRootPath = "Assets/OpenRelay";
+    public string SourceActiveRootPath = "Assets/OpenRelayCDKSource";
+    [SerializeField]
+    public string SourceInactiveRootPath = "OpenRelayCDKSource";
+    [SerializeField]
+    public string LicenseName = "LICENSE";
+    [SerializeField]
+    public string LicenseDestPath = "Assets/OpenRelayCDK";
 }
