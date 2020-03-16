@@ -6,6 +6,7 @@ Thumbs.db
 
 # unity
 /Builds/*.unitypackage
+/Builds/*.log
 Library/
 Logs/
 obj/
