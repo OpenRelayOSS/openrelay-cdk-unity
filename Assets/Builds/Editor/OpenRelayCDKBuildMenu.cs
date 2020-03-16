@@ -293,7 +293,9 @@ namespace Com.FurtherSystems.OpenRelay.Builds
             var currentPath = Directory.GetCurrentDirectory();
             var outputDllPath = currentPath + "/" + outputPath + "/" + outputDll;
             var outputDllCdkPath = currentPath + "/" + outputCdkPath + "/" + outputDll;
+            File.Move(outputDllCdkPath + ".meta", outputDllPath + ".meta");
             File.Move(outputDllCdkPath, outputDllPath);
+            File.Move(sourceInactiveRootPath + ".meta", sourceActiveRootPath + ".meta");
             Directory.Move(sourceInactiveRootPath, sourceActiveRootPath);
         }
 
@@ -302,7 +304,9 @@ namespace Com.FurtherSystems.OpenRelay.Builds
             var currentPath = Directory.GetCurrentDirectory();
             var outputDllPath = currentPath + "/" + outputPath + "/" + outputDll;
             var outputDllCdkPath = currentPath + "/" + outputCdkPath + "/" + outputDll;
+            File.Move(outputDllPath + ".meta", outputDllCdkPath + ".meta");
             File.Move(outputDllPath, outputDllCdkPath);
+            File.Move(sourceActiveRootPath + ".meta", sourceInactiveRootPath + ".meta");
             Directory.Move(sourceActiveRootPath, sourceInactiveRootPath);
         }
 
