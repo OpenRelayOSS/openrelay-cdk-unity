@@ -24,8 +24,8 @@ jobs:
           <<: *setup_unity_license_env_var
       - run:
           command: |
-            chmod -R 755 ./Builds/Build.sh
-            ./Builds/Build.sh
+            chmod -R 755 ./Builds/BuildLX.sh
+            ./Builds/BuildLX.sh
       - run:
           <<: *remove_license_file
       - store_artifacts:
