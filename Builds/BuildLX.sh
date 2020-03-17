@@ -6,6 +6,8 @@ build_path=`dirname $0`
 project_path=${build_path}/..
 target_method=Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
 
+ls -l
+ls /opt/Unity/
 echo ${unity_exe} \
  -batchmode \
  -quit \
