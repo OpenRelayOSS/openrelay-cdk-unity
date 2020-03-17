@@ -2,7 +2,7 @@ version: 2
 references:
   docker_image: &docker_image
     docker:
-      - image: gableroux/2019.3.5f1
+      - image: gableroux/unity3d:2019.3.5f1
   setup_unity_license_env_var: &setup_unity_license_env_var
     command: |
       mkdir -p /root/.cache/unity3d
