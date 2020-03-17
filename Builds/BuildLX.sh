@@ -6,7 +6,7 @@ build_path=`dirname $0`
 project_path=${build_path}/..
 target_method=Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
 
-${unity_exe} \
+echo ${unity_exe} \
  -batchmode \
  -quit \
  -logFile ${build_path}/Build.log \
