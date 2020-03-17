@@ -6,4 +6,5 @@ build_path=`dirname $0`
 project_path=./
 target_method=Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
 
-${unity_exe} -batchmode -quit -logFile ${build_path}/Build.log -projectPath ${project_path} -executeMethod ${target_method}
+echo dryrun
+echo ${unity_exe} -batchmode -quit -logFile ${build_path}/Build.log -projectPath ${project_path} -executeMethod ${target_method}
