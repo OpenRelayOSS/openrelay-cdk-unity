@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 unity_version=2019.3.5f1
 unity_path=/opt/Unity/Editor
 unity_exe=${unity_path}/Unity
@@ -12,5 +12,3 @@ ${unity_exe} \
  -logFile ${build_path}/Build.log \
  -projectPath ${project_path} \
  -executeMethod ${target_method}
-
-exit 0
