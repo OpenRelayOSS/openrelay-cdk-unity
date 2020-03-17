@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 unity_version=2019.3.5f1
 unity_path=/opt/Unity/Editor
 unity_exe=${unity_path}/Unity
