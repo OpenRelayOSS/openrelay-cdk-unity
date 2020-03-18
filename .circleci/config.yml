@@ -21,7 +21,7 @@ jobs:
       - run:
           <<: *setup_unity_license_env_var
       - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -noUpm -logFile /dev/stdout -projectPath ./ -manualLicenseFile /Unity_v2019.x.ulf || echo
-      - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -noUpm -logFile /dev/stdout -projectPath ./ -executeMethod Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
+      - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -logFile /dev/stdout -projectPath ./ -executeMethod Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
       - run:
           <<: *remove_license_file
       - store_artifacts:
