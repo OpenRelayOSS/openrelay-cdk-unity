@@ -1,33 +1,19 @@
 version: 2
-references:
-  docker_image: &docker_image
+jobs:
+  build-packaging:
     docker:
       - image: gableroux/unity3d:2019.3.5f1
-  setup_unity_license_env_var: &setup_unity_license_env_var
-    command: |
-      mkdir -p /root/.cache/unity3d
-      mkdir -p /root/.local/share/unity3d/Unity/
-      openssl aes-256-cbc -md md5 -d -in ./.circleci/Unity_v2019.x.ulf-garbled -out /Unity_v2019.x.ulf -k $KEY
-      export UNITY_LICENSE_CONTENT=`cat /Unity_v2019.x.ulf`
-      echo "$UNITY_LICENSE_CONTENT" | tr -d '\r' > "/root/.local/share/unity3d/Unity/Unity_lic.ulf"
-  remove_license_file: &remove_license_file
-    command: |
-      rm /Unity_v2019.x.ulf /root/.local/share/unity3d/Unity/Unity_lic.ulf
-jobs:
-  build_packaging:
-    <<: *docker_image
     steps:
       - checkout
-      - run:
-          <<: *setup_unity_license_env_var
+      - run: openssl aes-256-cbc -md md5 -d -in ./.circleci/Unity_v2019.x.ulf-garbled -out /Unity_v2019.x.ulf -k $EXPAND_KEY
       - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -noUpm -logFile /dev/stdout -projectPath ./ -manualLicenseFile /Unity_v2019.x.ulf || echo
       - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -logFile /dev/stdout -projectPath ./ -executeMethod Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
-      - run:
-          <<: *remove_license_file
+      - run: rm /Unity_v2019.x.ulf
       - store_artifacts:
-          path: ./Builds/*.unitypackage
+          path: ./Builds/${PACKAGE_PREFIX}-${CDK_VERSION}.unitypackage
+          destination: ${PACKAGE_PREFIX}-${CDK_VERSION}.unitypackage
 workflows:
   version: 2
   build:
     jobs:
-      - build_packaging
+      - build-packaging
