@@ -13,8 +13,8 @@ jobs:
       - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -logFile /dev/stdout -projectPath ./ -executeMethod Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
       - run: rm /Unity_v2019.x.ulf
       - store_artifacts:
-          path: ./Builds/$CDK_PREFIX-$CDK_VERSION.unitypackage
-          destination: openrelay-cdk-0.9.8.unitypackage
+          path: "./Builds/$CDK_PREFIX-$CDK_VERSION.unitypackage"
+          destination: "$CDK_PREFIX-$CDK_VERSION.unitypackage"
 workflows:
   version: 2
   build:
