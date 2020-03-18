@@ -7,14 +7,12 @@ references:
     command: |
       mkdir -p /root/.cache/unity3d
       mkdir -p /root/.local/share/unity3d/Unity/
-      openssl version
-      openssl aes-256-cbc -md md5 -d -in ./Unity_v2019.x.ulf-garbled -out /Unity_v2019.x.ulf -k $KEY
+      openssl aes-256-cbc -md md5 -d -in ./.circleci/Unity_v2019.x.ulf-garbled -out /Unity_v2019.x.ulf -k $KEY
       export UNITY_LICENSE_CONTENT=`cat /Unity_v2019.x.ulf`
       echo "$UNITY_LICENSE_CONTENT" | tr -d '\r' > "/root/.local/share/unity3d/Unity/Unity_lic.ulf"
   remove_license_file: &remove_license_file
     command: |
-      rm /Unity_v2019.x.ulf
-      rm /root/.local/share/unity3d/Unity/Unity_lic.ulf
+      rm /Unity_v2019.x.ulf /root/.local/share/unity3d/Unity/Unity_lic.ulf
 jobs:
   build_packaging:
     <<: *docker_image
@@ -22,14 +20,12 @@ jobs:
       - checkout
       - run:
           <<: *setup_unity_license_env_var
-      - run:
-          command: |
-            chmod 755 ./Builds/BuildLX.sh
-            ./Builds/BuildLX.sh
+      - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -noUpm -logFile -projectPath ./ -manualLicenseFile /Unity_v2019.x.ulf
+      - run: /opt/Unity/Editor/Unity -batchmode -nographics -quit -silent-crashes -noUpm -logFile -projectPath ./ -executeMethod Com.FurtherSystems.OpenRelay.Builds.OpenRelayCDKBuildMenu.BuildALL
       - run:
           <<: *remove_license_file
       - store_artifacts:
-          path: './Builds/*.unitypackage'
+          path: ./Builds/*.unitypackage
 workflows:
   version: 2
   build:
