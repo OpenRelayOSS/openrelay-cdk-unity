@@ -42,6 +42,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
         [MenuItem("OpenRelay CDK Build/Build ALL", false, 10)]
         static void BuildALL()
         {
+            LoadBuildSettings(); // NEED. call by -batchmode.
             if (!BuildClean()) return;
             if (!BuildDLL()) return;
             if (!BuildUnitypackage()) return;
