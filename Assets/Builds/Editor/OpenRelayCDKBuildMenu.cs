@@ -151,7 +151,7 @@ namespace Com.FurtherSystems.OpenRelay.Builds
 
             // building common path
             var execPath = Environment.GetCommandLineArgs()[0];
-#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN ||  UNITY_EDITOR_LINUX
             var basePath = Path.GetDirectoryName(execPath) + "/Data/";
 #else
             var basePath = Path.GetDirectoryName(execPath) + "/../";
