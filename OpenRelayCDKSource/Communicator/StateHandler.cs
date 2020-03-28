@@ -233,8 +233,9 @@ namespace Com.FurtherSystems.OpenRelay
                         var listenMode = messageReader.ReadByte();
                         OrLog(LogLevel.Verbose, "read bytes get room listen mode:" + listenMode);
                         messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
-                        var ipv4Bytes = messageReader.ReadBytes(4);
-                        var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                        //var ipv4Bytes = messageReader.ReadBytes(4);
+                        //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                        var ipv4Addr = _settings.ServerAddress; // TODO ISSUE provisional fix
                         OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                         var ipv6Bytes = messageReader.ReadBytes(16);
                         var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
@@ -454,7 +455,8 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "read bytes get room listen mode:" + listenMode);
                 messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
                 var ipv4Bytes = messageReader.ReadBytes(4);
-                var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                var ipv4Addr = _settings.ServerAddress; // TODO ISSUE provisional fix
                 OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                 var ipv6Bytes = messageReader.ReadBytes(16);
                 var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
