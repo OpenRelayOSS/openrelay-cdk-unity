@@ -3,3 +3,7 @@
 
 # License
 The MIT License
+
+# Copyright
+FurtherSystem Co.,Ltd.
+https://furthersystem.com/
