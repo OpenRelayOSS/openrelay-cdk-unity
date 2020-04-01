@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 1888953935, guid: bcf9aea121fb66f438ef6ad47ae57f19, type: 3}
   m_Name: OpenRelayCDKSettings
   m_EditorClassIdentifier: 
-  ServerAddress: 
+  ServerAddress: localhost
   EntryPort: 7000
   Mode: 1
   LogLabelColor: {r: 0, g: 0, b: 1, a: 1}
