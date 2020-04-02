@@ -4,6 +4,7 @@
 # License
 The MIT License
 
-# Copyright
-FurtherSystem Co.,Ltd.
-https://furthersystem.com/
+@see [DEPENDENT LICENSES](https://github.com/OpenRelayOSS/openrelay-cdk-unity/blob/master/LICENSE)
+
+
+©︎ FurtherSystem Co.,Ltd.
