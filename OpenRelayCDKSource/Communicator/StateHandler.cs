@@ -102,7 +102,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     OnFailedToConnectCall( "failed polling");//TODO error handle case;
                     yield break;
                 }
@@ -112,7 +112,7 @@ namespace Com.FurtherSystems.OpenRelay
 
                 if (responseAPIversion != UNITY_CDK_VERSION)
                 {
-                    OrLogError(LogLevel.Normal, "bad version, please update CDK or APPLICATION. require:" + responseAPIversion + " current:" + UNITY_CDK_VERSION);
+                    OrLogError(LogLevel.Info, "bad version, please update CDK or APPLICATION. require:" + responseAPIversion + " current:" + UNITY_CDK_VERSION);
                     OnFailedToConnectCall("failed polling");//TODO error handle case;
                     yield break;
                 }
@@ -127,7 +127,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     // TODO VERSION ERROR HANDLE CALLBACK
                     yield break;
                 }
@@ -159,7 +159,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     // TODO VERSION ERROR HANDLE CALLBACK
                     yield break;
                 }
@@ -209,7 +209,7 @@ namespace Com.FurtherSystems.OpenRelay
                         }
                         catch (Exception e)
                         {
-                            OrLogError(LogLevel.Normal, "handle error: " + e.Message);
+                            OrLogError(LogLevel.Info, "handle error: " + e.Message);
                             OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                             OrLogError(LogLevel.Verbose, "post create room failed ");
                             gch.Free();
@@ -272,7 +272,7 @@ namespace Com.FurtherSystems.OpenRelay
             {
                 while (true)
                 {
-                    if (_roomJoined)
+                    if (_roomJoined || _roomJoining)
                     {
                         yield return new WaitForSeconds(1f);
                     }
@@ -292,7 +292,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     // TODO VERSION ERROR HANDLE CALLBACK
                     yield break;
                 }
@@ -355,7 +355,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -368,7 +368,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     OnOpenRelayCreateRoomFailedCall((short)webRequest.responseCode, "failed polling");//TODO error handle case;
                     yield break;
                 }
@@ -395,16 +395,16 @@ namespace Com.FurtherSystems.OpenRelay
                 else if (!ignoreExist && responseCode == ResponseCode.OPENRELAY_RESPONSE_CODE_NG_CREATE_ROOM_ALREADY_EXISTS)
                 {
                     createAndJoinRoomAbort = true;
-                    OrLogError(LogLevel.Normal, "post create room failed. http status code:" + webRequest.responseCode);
-                    OrLogError(LogLevel.Normal, "post create room failed. response code:" + responseCode);
+                    OrLogError(LogLevel.Info, "post create room failed. http status code:" + webRequest.responseCode);
+                    OrLogError(LogLevel.Info, "post create room failed. response code:" + responseCode);
                     OnOpenRelayCreateRoomFailedCall((short)webRequest.responseCode, " failed polling");
 
                     yield break;
                 }
                 else if (responseCode != ResponseCode.OPENRELAY_RESPONSE_CODE_OK_ROOM_ASSGIN_AND_CREATED)
                 {
-                    OrLogError(LogLevel.Normal, "post create room failed. http status code:" + webRequest.responseCode);
-                    OrLogError(LogLevel.Normal, "post create room failed. response code:" + responseCode);
+                    OrLogError(LogLevel.Info, "post create room failed. http status code:" + webRequest.responseCode);
+                    OrLogError(LogLevel.Info, "post create room failed. response code:" + responseCode);
                     OnOpenRelayCreateRoomFailedCall((short)webRequest.responseCode, " failed polling");
 
                     yield break;
@@ -432,7 +432,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "handle error: " + e.Message);
+                    OrLogError(LogLevel.Info, "handle error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                     OrLogError(LogLevel.Verbose, "post create room failed ");
                     gch.Free();
@@ -507,7 +507,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -538,7 +538,7 @@ namespace Com.FurtherSystems.OpenRelay
                     yield return webRequest.SendWebRequest();
                     if (webRequest.isNetworkError)
                     {
-                        OrLogError(LogLevel.Normal, webRequest.error);
+                        OrLogError(LogLevel.Info, webRequest.error);
                         OnOpenRelayJoinRoomFailedCall((short)webRequest.responseCode, "failed polling");//TODO error handle case;
                         prepareAndJoinRoomAbort = true;
                         _roomJoining = false;
@@ -653,29 +653,58 @@ namespace Com.FurtherSystems.OpenRelay
                 _PropertiesInitializing = true;
                 OrLog(LogLevel.Verbose, "Join room Properties initializing start");
 
-                if (Player.IsMasterClient)
-                {
-                    _masterClient = _player;
-                    _room.InitializeProperties();
-                    if (_room.Properties.Count == 0)
+                var retryOver = 3;
+                var retry = 0;
+
+                do {
+                    if (Player.IsMasterClient)
                     {
-                        _PropertiesReady = true;
+                        _masterClient = _player;
+                        _room.InitializeProperties();
+                        if (_room.Properties.Count == 0)
+                        {
+                            _PropertiesReady = true;
+                        }
                     }
-                }
-                else
-                {
-                    dealerListener.GetProperties();// ISSUE 9 timing bug.
-                }
+                    else
+                    {
+                        dealerListener.GetProperties();// ISSUE 9 timing bug. require gap load logic.
+                    }
 
-                OrLog(LogLevel.Verbose, "Join room Properties initializing ... ");
+                    OrLog(LogLevel.Verbose, "Join room Properties initializing ... ");
 
-                // wait ready for Properties.
-                while (true)
-                {
-                    if (_PropertiesReady) break;
+                    var timeout = 1.5f;
+                    var step = 0.01f;
+                    var counter = 0f;
+                    // wait ready for Properties.
+                    while (counter < timeout)
+                    {
+                        if (_PropertiesReady) break;
 
-                    yield return new WaitForSeconds(0.01f);
-                }
+                        yield return new WaitForSeconds(step);
+                        counter += step;
+                    }
+
+                    if (_PropertiesReady)
+                    {
+                        OrLog(LogLevel.Verbose, "Join room Properties initializing ok");
+                        break;
+                    }
+                    else if(retry >= retryOver)
+                    {
+                        OrLog(LogLevel.Verbose, "Join room Properties initializing retry over failed. " + retry.ToString()); prepareAndJoinRoomAbort = true;
+                        _roomJoining = false;
+                        _roomJoined = false;
+                        _roomJoinComplete = false;
+                        yield break;
+                    }
+                    else
+                    {
+                        retry++;
+                        OrLog(LogLevel.Verbose, "Join room Properties initializing retry ... " + retry.ToString());
+                    }
+
+                } while (true);
 
                 _roomJoining = false;
                 _roomJoined = true;
@@ -683,8 +712,6 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "OnJoinedRoomCall");
                 OnReadyNewPlayerCall();
                 OrLog(LogLevel.Verbose, "OnReadyNewPlayerCall");
-
-                OrLog(LogLevel.Verbose, "Join room Properties initializing ok");
 
                 OrLog(LogLevel.Verbose, "Join room prepare polling end");
             }
@@ -697,9 +724,9 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     // TODO VERSION ERROR HANDLE CALLBACK
-                    OrLogError(LogLevel.Normal, "get room properties failed. http status code:" + webRequest.responseCode);
+                    OrLogError(LogLevel.Info, "get room properties failed. http status code:" + webRequest.responseCode);
 
                     yield break;
                 }
@@ -736,7 +763,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     OnOpenRelayJoinRoomFailedCall((short)webRequest.responseCode, "failed polling");//TODO error handle case;
                     prepareAndJoinRoomAbort = true;
                     _roomJoining = false;
@@ -804,7 +831,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
                 {
-                    OrLogError(LogLevel.Normal, webRequest.error);
+                    OrLogError(LogLevel.Info, webRequest.error);
                     // TODO VERSION ERROR HANDLE CALLBACK
                     yield break;
                 }

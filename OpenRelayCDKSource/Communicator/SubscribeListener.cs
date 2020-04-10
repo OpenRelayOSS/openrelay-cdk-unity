@@ -152,7 +152,7 @@ namespace Com.FurtherSystems.OpenRelay
                         }
                         catch (Exception e)
                         {
-                            OrLogWarn(LogLevel.Normal, "error: " + e.Message);
+                            OrLogWarn(LogLevel.Info, "error: " + e.Message);
                             OrLogWarn(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                         }
                         finally
@@ -187,7 +187,7 @@ namespace Com.FurtherSystems.OpenRelay
                         }
                         catch (Exception e)
                         {
-                            OrLogWarn(LogLevel.Normal, "error: " + e.Message);
+                            OrLogWarn(LogLevel.Info, "error: " + e.Message);
                             OrLogWarn(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                         }
                         finally

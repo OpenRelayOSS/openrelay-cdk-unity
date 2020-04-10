@@ -227,7 +227,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -280,7 +280,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                     JoinGuid = new byte[] { };
                 }
@@ -327,7 +327,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -398,7 +398,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -447,7 +447,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -492,7 +492,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -504,7 +504,7 @@ namespace Com.FurtherSystems.OpenRelay
                 if (!_roomJoined) return;
 
                 OrLog(LogLevel.Verbose, "MessageSend RelayCode.SET_MASTER");
-                OrLog(LogLevel.Normal, "Set Master player:" + player.ID.ToString());
+                OrLog(LogLevel.Info, "Set Master player:" + player.ID.ToString());
 
                 var header = new Header();
                 //header.Ver = 0;
@@ -535,7 +535,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -547,7 +547,7 @@ namespace Com.FurtherSystems.OpenRelay
                 if (!_roomJoined) return;
 
                 OrLog(LogLevel.Verbose, "MessageSend RelayCode.GET_MASTER");
-                OrLog(LogLevel.Normal, "Get Master player");
+                OrLog(LogLevel.Info, "Get Master player");
 
                 var header = new Header();
                 //header.Ver = 0;
@@ -576,7 +576,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
@@ -618,7 +618,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Normal, "error: " + e.Message);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
                     OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();

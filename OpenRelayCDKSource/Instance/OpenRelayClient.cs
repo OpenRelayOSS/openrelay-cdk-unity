@@ -67,9 +67,10 @@ namespace Com.FurtherSystems.OpenRelay
     public enum LogLevel
     {
         None = 0,
-        Normal = 1,
-        Verbose = 2,
-        VeryVerbose = 3,
+        Info = 1,
+        Notice = 2,
+        Verbose = 3,
+        VeryVerbose = 4,
     }
 
     public enum ConnectionState
@@ -204,21 +205,21 @@ namespace Com.FurtherSystems.OpenRelay
         
         public static void RegistCallbacks(IOrCallbacks cbs) 
         {
-            OrLog(LogLevel.Normal,"Regist callbacks");
+            OrLog(LogLevel.Info,"Regist callbacks");
             callbacks.Add(cbs);
             RegistCallbacksAll(cbs);
         }
 
         public static void UnRegistCallbacks(IOrCallbacks cbs)
         {
-            OrLog(LogLevel.Normal, "Unregist callbacks");
+            OrLog(LogLevel.Info, "Unregist callbacks");
             UnRegistCallbacksAll(cbs);
             callbacks.Remove(cbs);
         }
 
         private static void RegistCallbacksAll(IOrCallbacks cbs)
         {
-            OrLog(LogLevel.Normal, "Regist callbacks all");
+            OrLog(LogLevel.Info, "Regist callbacks all");
             OnConnectedToMasterCall += cbs.OnConnectedToMaster;
             OnConnectedToOpenRelayCall += cbs.OnConnectedToOpenRelay;
             OnConnectionFailCall += cbs.OnConnectionFail;
@@ -243,7 +244,7 @@ namespace Com.FurtherSystems.OpenRelay
 
         private static void UnRegistCallbacksAll(IOrCallbacks cbs)
         {
-            OrLog(LogLevel.Normal, "Unregist callbacks all");
+            OrLog(LogLevel.Info, "Unregist callbacks all");
             OnConnectedToMasterCall -= cbs.OnConnectedToMaster;
             OnConnectedToOpenRelayCall -= cbs.OnConnectedToOpenRelay;
             OnConnectionFailCall -= cbs.OnConnectionFail;
@@ -455,17 +456,17 @@ namespace Com.FurtherSystems.OpenRelay
         public static void Connect(string version)
         {
             SetupLog(_settings.LogVerboseLevel, _settings.LogLabelColor);
-            OrLog(LogLevel.Normal, "Log Initialized");
+            OrLog(LogLevel.Info, "Log Initialized");
             //todo destroy logic here
             _room = null;
 
             var go = new GameObject("StateHandler", typeof(StateHandler));
-            OrLog(LogLevel.Normal, "StateHandler Created");
+            OrLog(LogLevel.Info, "StateHandler Created");
             go.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector | HideFlags.HideAndDontSave;
             stateHandler = go.GetComponent<StateHandler>();
-            OrLog(LogLevel.Normal, "StateHandler Initialized");
+            OrLog(LogLevel.Info, "StateHandler Initialized");
 
-            OrLog(LogLevel.Normal, "Initialized ok");
+            OrLog(LogLevel.Info, "Initialized ok");
         }
 
         public static void Connect()

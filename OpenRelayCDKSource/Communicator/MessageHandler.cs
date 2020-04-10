@@ -40,7 +40,7 @@ namespace Com.FurtherSystems.OpenRelay
             }
             catch (Exception e)
             {
-                OrLogError(LogLevel.Normal, "handle error: " + e.Message);
+                OrLogError(LogLevel.Info, "handle error: " + e.Message);
                 OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 gch.Free();
 
