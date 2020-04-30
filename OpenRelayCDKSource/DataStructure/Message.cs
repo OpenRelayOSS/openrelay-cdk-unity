@@ -34,7 +34,7 @@ namespace Com.FurtherSystems.OpenRelay
         [FieldOffset(5)]
         public PlayerId SrcPid;
         [FieldOffset(7)]
-        public byte _alignment0; // 4byte alignment // ISSUE 11 change to private ?
+        public byte _alignment0; // 4byte alignment // ISSUE 22 change to private ?
         [FieldOffset(8)]
         public ObjectId SrcOid;
         [FieldOffset(10)]
@@ -42,9 +42,9 @@ namespace Com.FurtherSystems.OpenRelay
         [FieldOffset(12)]
         public UInt16 ContentLen;
         [FieldOffset(14)]
-        public byte _alignment1; // ISSUE 11 change to private ?
+        public byte _alignment1; // ISSUE 22 change to private ?
         [FieldOffset(15)]
-        public byte _alignment2; // ISSUE 11 change to private ?
+        public byte _alignment2; // ISSUE 22 change to private ?
         // Offset16 ... total size 16byte/128bit
 
         public Header()
@@ -63,7 +63,7 @@ namespace Com.FurtherSystems.OpenRelay
             _alignment2 = 0;
         }
 
-	// ISSUE 12 should use constructor ?
+	// ISSUE 23 should use constructor ?
         public static byte[] CreateHeader(
             byte ver,
             RelayCode msgCode,

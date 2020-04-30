@@ -235,7 +235,7 @@ namespace Com.FurtherSystems.OpenRelay
                         messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
                         var ipv4Bytes = messageReader.ReadBytes(4);
                         //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
-                        var ipv4Addr = _settings.ServerAddress; // TODO ISSUE provisional fix
+                        var ipv4Addr = _settings.ServerAddress; // TODO ISSUE 24 provisional fix
                         OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                         var ipv6Bytes = messageReader.ReadBytes(16);
                         var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
@@ -456,7 +456,7 @@ namespace Com.FurtherSystems.OpenRelay
                 messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
                 var ipv4Bytes = messageReader.ReadBytes(4);
                 //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
-                var ipv4Addr = _settings.ServerAddress; // TODO ISSUE provisional fix
+                var ipv4Addr = _settings.ServerAddress; // TODO ISSUE 24 provisional fix
                 OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                 var ipv6Bytes = messageReader.ReadBytes(16);
                 var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
@@ -668,7 +668,7 @@ namespace Com.FurtherSystems.OpenRelay
                     }
                     else
                     {
-                        dealerListener.GetProperties();// ISSUE 9 timing bug. require gap load logic.
+                        dealerListener.GetProperties();// ISSUE 1 timing bug. require gap load logic.
                     }
 
                     OrLog(LogLevel.Verbose, "Join room Properties initializing ... ");
@@ -882,7 +882,7 @@ namespace Com.FurtherSystems.OpenRelay
                 yield return StartCoroutine(UpdateRoomList());
             }
 
-            // ISSUE 10 Bad performance.
+            // ISSUE 21 Bad performance.
             public void StartQueue()
             {
                 StartCoroutine(RetrieveQueueStatefull()); // no yield return ok.

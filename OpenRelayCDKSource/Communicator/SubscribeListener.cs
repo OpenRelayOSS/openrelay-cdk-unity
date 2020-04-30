@@ -34,7 +34,7 @@ namespace Com.FurtherSystems.OpenRelay
             private readonly Thread statelessListenerEnqueueWorker;
             private bool statefullListenerEnqueueCancelled;
             private bool statelessListenerEnqueueCancelled;
-            private bool initialized = false; // ISSUE 1 
+            private bool initialized = false; // ISSUE 11 
 
             public delegate void MessageDelegate(EndiannessBinaryReader message);
             private readonly MessageDelegate messageDelegate = delegate{ };
@@ -114,7 +114,7 @@ namespace Com.FurtherSystems.OpenRelay
 
             public void Start()
             {
-                initialized = true; // ISSUE 1
+                initialized = true; // ISSUE 11
                 Initialize();
                 statefullListenerEnqueueCancelled = false;
                 statelessListenerEnqueueCancelled = false;
@@ -130,7 +130,7 @@ namespace Com.FurtherSystems.OpenRelay
             {
                 statefullListenerEnqueueCancelled = true;
                 statelessListenerEnqueueCancelled = true;
-                if (initialized) statefullListenerEnqueueWorker.Join(); // ISSUE 1 
+                if (initialized) statefullListenerEnqueueWorker.Join(); // ISSUE 11 
                 //statelessListenerEnqueueWorker.Join();
                 //Initialize();
             }

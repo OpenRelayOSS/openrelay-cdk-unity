@@ -37,7 +37,7 @@ namespace Com.FurtherSystems.OpenRelay
             private readonly Thread statelessListenerWorker;
             private bool statefullListenerCancelled;
             private bool statelessListenerCancelled;
-            private bool initialized = false; // ISSUE 1 
+            private bool initialized = false; // ISSUE 11
             private int LoginId = -1;
             private byte[] joinGuid = new byte[] { };
             public byte[] JoinGuid
@@ -108,7 +108,7 @@ namespace Com.FurtherSystems.OpenRelay
 
             public void Start()
             {
-                initialized = true; // ISSUE 1
+                initialized = true; // ISSUE 11
                 Initialize();
                 statefullListenerCancelled = false;
                 statelessListenerCancelled = false;
@@ -126,7 +126,7 @@ namespace Com.FurtherSystems.OpenRelay
             {
                 statefullListenerCancelled = true;
                 statelessListenerCancelled = true;
-                if (initialized) statefullListenerWorker.Join(); // ISSUE 1
+                if (initialized) statefullListenerWorker.Join(); // ISSUE 11
                 //statelessListenerWorker.Join();
                 //Initialize();
             }
