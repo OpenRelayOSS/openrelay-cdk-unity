@@ -817,6 +817,7 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "listener stop");
                 dealerListener.Stop();
                 subscriberListener.Stop();
+                InitializeRoom();
 
                 OnLeftRoomCall();
                 OrLog(LogLevel.Verbose, "leave room end");
@@ -844,6 +845,7 @@ namespace Com.FurtherSystems.OpenRelay
                     // TODO VERSION ERROR HANDLE CALLBACK
                     yield break;
                 }
+                OnDisconnectedCall(string.Empty);
                 OrLog(LogLevel.Verbose, "post logout end");
             }
 
