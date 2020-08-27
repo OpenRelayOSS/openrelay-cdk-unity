@@ -6,5 +6,6 @@ The MIT License
 
 @see [DEPENDENT LICENSES](https://github.com/OpenRelayOSS/openrelay-cdk-unity/blob/master/LICENSE)
 
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FOpenRelayOSS%2Fopenrelay-cdk-unity.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2FOpenRelayOSS%2Fopenrelay-cdk-unity?ref=badge_small)
 
 ©︎ FurtherSystem Co.,Ltd.
