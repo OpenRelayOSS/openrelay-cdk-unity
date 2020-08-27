@@ -97,7 +97,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator Version()
             {
                 OrLog(LogLevel.Verbose, "get version start");
-                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/version");
+                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/version");
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
@@ -122,7 +122,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator LogonEntry()
             {
                 OrLog(LogLevel.Verbose, "post logon start");
-                UnityWebRequest webRequest = UnityWebRequest.Post(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/logon", string.Empty);
+                UnityWebRequest webRequest = UnityWebRequest.Post(BASE_URL + _serverAddress + ":" + _entryPort + "/logon", string.Empty);
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
@@ -154,7 +154,7 @@ namespace Com.FurtherSystems.OpenRelay
 
                 GetRoomListLock = true;
                 OrLog(LogLevel.Verbose, "Get rooms info");
-                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/rooms");
+                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/rooms");
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
@@ -234,8 +234,8 @@ namespace Com.FurtherSystems.OpenRelay
                         OrLog(LogLevel.Verbose, "read bytes get room listen mode:" + listenMode);
                         messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
                         var ipv4Bytes = messageReader.ReadBytes(4);
-                        //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
-                        var ipv4Addr = _settings.ServerAddress; // TODO ISSUE 24 provisional fix
+                        var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                        //var ipv4Addr = _serverAddress; // TODO ISSUE 24 provisional fix
                         OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                         var ipv6Bytes = messageReader.ReadBytes(16);
                         var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
@@ -287,7 +287,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator GetRoomInfo()
             {
                 OrLog(LogLevel.Verbose, "Get room info start");
-                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/room/info/");
+                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/room/info/");
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
@@ -360,7 +360,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
                 message.Close();
 
-                UnityWebRequest webRequest = UnityWebRequest.Put(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/room/create/" + roomName, messageBytes);
+                UnityWebRequest webRequest = UnityWebRequest.Put(BASE_URL + _serverAddress + ":" + _entryPort + "/room/create/" + roomName, messageBytes);
                 webRequest.method = "POST";
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 webRequest.SetRequestHeader("Content-Type", "application/octet-stream");
@@ -455,8 +455,8 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "read bytes get room listen mode:" + listenMode);
                 messageReader.ReadBytes(3); // alignment 3bytes for 4byte alignment.
                 var ipv4Bytes = messageReader.ReadBytes(4);
-                //var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
-                var ipv4Addr = _settings.ServerAddress; // TODO ISSUE 24 provisional fix
+                var ipv4Addr = new IPAddress(ipv4Bytes).ToString();
+                //var ipv4Addr = _settings.ServerAddress; // TODO ISSUE 24 provisional fix
                 OrLog(LogLevel.Verbose, "read bytes get room listen ipv4 addr:" + ipv4Addr);
                 var ipv6Bytes = messageReader.ReadBytes(16);
                 var ipv6Addr = new IPAddress(ipv6Bytes).ToString();
@@ -530,7 +530,7 @@ namespace Com.FurtherSystems.OpenRelay
                 UnityWebRequest webRequest;
                 while (true)
                 {
-                    webRequest = UnityWebRequest.Put(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/room/join_prepare_polling/" + roomName, messageBytes);
+                    webRequest = UnityWebRequest.Put(BASE_URL + _serverAddress + ":" + _entryPort + "/room/join_prepare_polling/" + roomName, messageBytes);
                     //webRequest.method = "POST";
                     webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                     webRequest.SetRequestHeader("Content-Type", "application/octet-stream");
@@ -719,7 +719,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator GetRoomProperties(RoomInfo room)
             {
                 OrLog(LogLevel.Verbose, "Get room properties start");
-                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/room/prop/" + room.Name);
+                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/room/prop/" + room.Name);
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)
@@ -755,7 +755,7 @@ namespace Com.FurtherSystems.OpenRelay
             private IEnumerator JoinRoomPrepareComplate(string roomName, byte[] messageBytes)
             {
                 OrLog(LogLevel.Verbose, "Join room prepare complate start");
-                UnityWebRequest webRequest = UnityWebRequest.Put(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/room/join_prepare_complete/" + roomName, messageBytes);
+                UnityWebRequest webRequest = UnityWebRequest.Put(BASE_URL + _serverAddress + ":" + _entryPort + "/room/join_prepare_complete/" + roomName, messageBytes);
                 webRequest.method = "POST";
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 webRequest.SetRequestHeader("Content-Type", "application/octet-stream");
@@ -826,7 +826,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator LogoutEntry()
             {
                 OrLog(LogLevel.Verbose, "post logout start");
-                UnityWebRequest webRequest = UnityWebRequest.Post(BASE_URL + _settings.ServerAddress + ":" + _settings.EntryPort + "/logoff", string.Empty);
+                UnityWebRequest webRequest = UnityWebRequest.Post(BASE_URL + _serverAddress + ":" + _entryPort + "/logoff", string.Empty);
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
                 if (webRequest.isNetworkError)

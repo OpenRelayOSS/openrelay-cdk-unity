@@ -199,6 +199,9 @@ namespace Com.FurtherSystems.OpenRelay
             }
         }
 
+        private static string _serverAddress = string.Empty;
+        private static string _entryPort = string.Empty;
+        private static string _version = string.Empty;
         private static List<IOrCallbacks> callbacks = new List<IOrCallbacks>();
         private static SubscriberListener subscriberListener;
         private static DealerListener dealerListener;
@@ -448,12 +451,21 @@ namespace Com.FurtherSystems.OpenRelay
 
         public static void Connect(string version, string serverAddress, string entryPort)
         {
-            _settings.ServerAddress = serverAddress;
-            _settings.EntryPort = entryPort;
-            Connect(version);
+            _version = version;
+            _serverAddress = serverAddress;
+            _entryPort = entryPort;
+            Connect();
         }
 
         public static void Connect(string version)
+        {
+            _serverAddress = _settings.ServerAddress;
+            _entryPort = _settings.EntryPort;
+            _version = version;
+            Connect();
+        }
+
+        private static void Connect()
         {
             SetupLog(_settings.LogVerboseLevel, _settings.LogLabelColor);
             OrLog(LogLevel.Info, "Log Initialized");
@@ -467,11 +479,6 @@ namespace Com.FurtherSystems.OpenRelay
             OrLog(LogLevel.Info, "StateHandler Initialized");
 
             OrLog(LogLevel.Info, "Initialized ok");
-        }
-
-        public static void Connect()
-        {
-            Connect(string.Empty);
         }
 
         public static void Disconnect()
@@ -493,6 +500,9 @@ namespace Com.FurtherSystems.OpenRelay
         {
             _connected = false;
             _entryJoined = false;
+            _serverAddress = string.Empty;
+            _entryPort = string.Empty;
+            _version = string.Empty;
         }
 
         private static void InitializeRoom()
