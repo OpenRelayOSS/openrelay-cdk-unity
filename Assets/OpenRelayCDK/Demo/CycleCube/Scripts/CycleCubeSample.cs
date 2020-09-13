@@ -246,7 +246,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             ConnectOrDisconnectButton.interactable = true;
             ConnectOrDisconnectInputField.interactable = true;
             ConnectOrDisconnectText.text = "Connect";
-            ConnectOrDisconnectText.color = "#AEFF00".ToColor();
+            ConnectOrDisconnectText.color = "#00B29A".ToColor();
 
             //join
             JoinOrLeaveButton.interactable = false;
@@ -261,7 +261,7 @@ namespace Com.FurtherSystems.OpenRelaySample
         
         private void TransitConnectedUI()
         {
-            StatusText.color = "#AEFF00".ToColor();
+            StatusText.color = "#00B29A".ToColor();
 
             //connect
             ConnectOrDisconnectButton.interactable = true;
@@ -273,7 +273,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             JoinOrLeaveButton.interactable = true;
             JoinOrLeaveInputField.interactable = true;
             JoinOrLeaveText.text = "Join";
-            JoinOrLeaveText.color = "#AEFF00".ToColor();
+            JoinOrLeaveText.color = "#00B29A".ToColor();
 
             //name
             SetNameButton.interactable = false;
@@ -282,7 +282,7 @@ namespace Com.FurtherSystems.OpenRelaySample
 
         private void TransitJoinedUI()
         {
-            StatusText.color = "#AEFF00".ToColor();
+            StatusText.color = "#00B29A".ToColor();
             //connect
             ConnectOrDisconnectButton.interactable = true;
             ConnectOrDisconnectInputField.interactable = false;
@@ -302,7 +302,7 @@ namespace Com.FurtherSystems.OpenRelaySample
 
         private void TransitCannotOperationUI()
         {
-            StatusText.color = "#AEFF00".ToColor();
+            StatusText.color = "#00B29A".ToColor();
             //connect
             ConnectOrDisconnectButton.interactable = false;
             ConnectOrDisconnectInputField.interactable = false;
@@ -365,7 +365,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             else
             {
                 AutoRollText.text = "AutoRoll -> On";
-                AutoRollText.color = "#AEFF00".ToColor();
+                AutoRollText.color = "#00B29A".ToColor();
             }
 
             if (OpenRelayClient.inRoom)
@@ -390,7 +390,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             else
             {
                 VoiceText.text = "Voice -> On";
-                VoiceText.color = "#AEFF00".ToColor();
+                VoiceText.color = "#00B29A".ToColor();
             }
         }
 
