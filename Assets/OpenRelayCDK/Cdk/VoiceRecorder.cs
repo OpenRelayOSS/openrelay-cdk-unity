@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityOpus;
 
 
@@ -19,10 +21,17 @@ namespace Com.FurtherSystems.OpenRelay
 
     public class VoiceRecorder : MonoBehaviour
     {
-        [SerializeField]
-        int MicrophoneIndex = 0;
+        public enum Status
+        {
+            NoDetect = 0,
+            Error = 1,
+            Ready = 2,
+            Broadcasting = 3,
+        }
         [SerializeField]
         bool AutoStart = true;
+        [SerializeField]
+        public int PreferMicrophoneIndex = 0;
         [SerializeField]
         bool SyncBuffering = false;
         [SerializeField]
@@ -30,10 +39,14 @@ namespace Com.FurtherSystems.OpenRelay
         [SerializeField]
         bool OpusEncode = false;
         [SerializeField]
+        Status VoiceRecorderStatus = Status.NoDetect;
+        [SerializeField]
         bool DebugEcho = false;
 
         UInt16 CurrentPlayerId = 0;
         UInt16 CurrentObjectId = 0;
+        
+        string microphoneName = string.Empty;
 
         const int samplingFrequency = 48000;
         const int lengthSeconds = 1;
@@ -45,7 +58,6 @@ namespace Com.FurtherSystems.OpenRelay
         float[] processBuffer = new float[512];
         float[] microphoneBuffer = new float[lengthSeconds * samplingFrequency];
         Encoder encoder;
-        public bool initialized = false;
         readonly float[] frameBuffer = new float[frameSize];
         readonly byte[] outputBuffer = new byte[outputBufferSize];
         readonly float[] amountFrameBuffer = new float[frameSize];
@@ -60,29 +72,70 @@ namespace Com.FurtherSystems.OpenRelay
             set { recording = value; }
         }
 
+        bool microphonePermissionRequesting;
+
         private readonly OpenRelayClient.BroadcastFilter echoSyncOption = new OpenRelayClient.BroadcastFilter(OpenRelayClient.DestinationCode.StrictBroadcast);
 
         void Start()
         {
             if (AutoStart)
             {
-                StartRecorder((UInt16)OpenRelayClient.Player.ID, OpenRelayClient.AllocateObjectId());
+                StartRecorder((UInt16)OpenRelayClient.Player.ID, OpenRelayClient.AllocateObjectId(), PreferMicrophoneIndex);
             }
         }
 
-        public void StartRecorder(UInt16 playerId, UInt16 objectId)
+        public void StartRecorder(UInt16 playerId, UInt16 objectId, int microphoneIndex)
         {
             CurrentPlayerId = playerId;
             CurrentObjectId = objectId;
+            StartCoroutine(Initialize(microphoneIndex));
+        }
+
+        bool initialized = false;
+        public IEnumerator Initialize(int microphoneIndex)
+        {
+            VoiceRecorderStatus = Status.NoDetect;
+
+            // for android only
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
+                {
+                    yield return RequestAndroidMicrophonePermission();
+                }
+            }
+            else
+            {
+                yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
+                if (Application.HasUserAuthorization(UserAuthorization.Microphone) == false)
+                {
+                    Debug.Log("microphone permission error.");
+                    VoiceRecorderStatus = Status.Error;
+                    yield break;
+                }
+            }
+
+            if (Microphone.devices == null || Microphone.devices.Length == 0)
+            {
+                Debug.Log("no microphone device");
+                VoiceRecorderStatus = Status.NoDetect;
+                yield break;
+            }
+
             try
             {
-                clip = Microphone.Start(Microphone.devices[MicrophoneIndex], true, lengthSeconds, samplingFrequency);
+                microphoneName = Microphone.devices[microphoneIndex];
+                clip = Microphone.Start(microphoneName, true, lengthSeconds, samplingFrequency);
             }
             catch (Exception e)
             {
-                Debug.Log("Microphone Initialize failed " + e.Message);
-                return;
+                Debug.Log("microphone Initialize failed " + e.Message);
+                yield break;
             }
+
+            VoiceRecorderStatus = Status.Broadcasting;
+            Debug.Log("microphone ok.");
+
             if (OpusEncode)
             {
                 encoder = new Encoder(SamplingFrequency.Frequency_24000, NumChannels.Mono, OpusApplication.VoIP)
@@ -96,13 +149,34 @@ namespace Com.FurtherSystems.OpenRelay
             if (SyncBuffering) { encodeSetsBuffer = new List<EncodeSet>(); }
             initialized = true;
             recording = true;
+            yield break;
         }
 
         public void EndRecorder()
         {
             recording = false;
             initialized = false;
-            Microphone.End(Microphone.devices[MicrophoneIndex]);
+            Microphone.End(microphoneName);
+        }
+
+        // for android only
+        IEnumerator RequestAndroidMicrophonePermission()
+        {
+            microphonePermissionRequesting = true;
+            Permission.RequestUserPermission(Permission.Microphone);
+            float timeElapsed = 0;
+            while (microphonePermissionRequesting)
+            {
+                if (timeElapsed > 0.5f)
+                {
+                    microphonePermissionRequesting = false;
+                    yield break;
+                }
+                timeElapsed += Time.deltaTime;
+
+                yield return null;
+            }
+            yield break;
         }
 
         void Update()

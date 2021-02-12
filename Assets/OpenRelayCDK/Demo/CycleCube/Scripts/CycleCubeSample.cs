@@ -141,6 +141,7 @@ namespace Com.FurtherSystems.OpenRelaySample
 
         private void Initialize()
         {
+            availables.Clear();
             availables.Add(1, -1);
             availables.Add(2, -1);
             availables.Add(3, -1);
@@ -497,13 +498,14 @@ namespace Com.FurtherSystems.OpenRelaySample
                     currentObjectId = OpenRelayClient.AllocateObjectId();
                     cube.Initialize(true, (UInt16)p.ID, autoRolling);
                     cube.SwitchVoice(useVoice);
-                    if (useVoice) c.GetComponent<VoiceRecorder>().StartRecorder((UInt16)p.ID, 1);
+                    var micorophoneIndex = 0;
+                    if (useVoice) c.GetComponent<VoiceRecorder>().StartRecorder((UInt16)p.ID, 2, micorophoneIndex);
                 }
                 else
                 {
                     cube.Initialize(false, (UInt16)p.ID, false);
                     cube.SwitchVoice(useVoice);
-                    if (useVoice) c.GetComponent<VoicePlayer>().StartPlayer((UInt16)p.ID, 1);
+                    if (useVoice) c.GetComponent<VoicePlayer>().StartPlayer((UInt16)p.ID, 2);
                 }
                 c.SetActive(true);
             }
@@ -535,7 +537,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             var cube = cubeGameObject.GetComponent<Cube>();
             cube.Initialize(false, (UInt16)player.ID, false);
             cube.SwitchVoice(useVoice);
-            if (useVoice) cubeGameObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)player.ID, 1);
+            if (useVoice) cubeGameObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)player.ID, 2);
             cubeGameObject.SetActive(true);
         }
 
@@ -577,17 +579,17 @@ namespace Com.FurtherSystems.OpenRelaySample
 
         private void RemoveAllPlayers()
         {
-            GameObject cube = null;
-            foreach (var player in OpenRelayClient.PlayerList)
+            foreach (var cubeKey in cubeList.Keys)
             {
-                cube = null;
-                cubeList.TryRemove(player.ID.ToString(), out cube);
+                var playerId = int.Parse(cubeKey);
+                ReleaseCradle(playerId);
+                GameObject cube = null;
+                cubeList.TryRemove(cubeKey, out cube);
                 if (cube != null)
                 {
                     cube.SetActive(false);
-                    GameObject.Destroy(cube);
+                    Destroy(cube);
                 }
-                ReleaseCradle(player.ID);
             }
         }
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 271c95cd4722ca44b815f6e3fbf727e8, type: 3}
   m_Name: OpenRelayCDKBuildSettings
   m_EditorClassIdentifier: 
-  CDKBuildVersion: 0.9.8
+  CDKBuildVersion: 0.9.9
   CDKPackagePrefix: openrelay-cdk-
   UnitypackageSuffix: .unitypackage
   OutputPath: Builds

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using UnityEngine;
 using UnityOpus;
+using System.Collections;
 
 namespace Com.FurtherSystems.OpenRelay
 {
@@ -11,8 +12,6 @@ namespace Com.FurtherSystems.OpenRelay
     //[RequireComponent(typeof(AudioListener))]
     public class VoicePlayer : MonoBehaviour
     {
-        [SerializeField]
-        int MicrophoneIndex = 0;
         [SerializeField]
         bool AutoStart = true;
         [SerializeField]
@@ -41,7 +40,6 @@ namespace Com.FurtherSystems.OpenRelay
         int audioPosition = 0;
 
         long startTime = 0;
-        public bool initialized = false;
         bool playing = false;
         public bool IsPlaying
         {
@@ -73,6 +71,13 @@ namespace Com.FurtherSystems.OpenRelay
         {
             CurrentPlayerId = playerId;
             CurrentObjectId = objectId;
+            StartCoroutine(Initialize());
+        }
+
+        public bool initialized = false;
+        public IEnumerator Initialize()
+        {
+            initialized = false;
             OpenRelayClient.OnSyncStreamCall += OnSyncStream;
             //delaySyncQueue = new ConcurrentQueue<EncodeSet[]>();
             delaySyncRawQueue = new ConcurrentQueue<float[]>();
@@ -89,6 +94,7 @@ namespace Com.FurtherSystems.OpenRelay
             source.Play();
             initialized = true;
             playing = true;
+            yield break;
         }
 
         public void EndPlayer()
