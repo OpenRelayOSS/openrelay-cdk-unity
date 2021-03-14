@@ -622,17 +622,17 @@ namespace Com.FurtherSystems.OpenRelaySample
             }
         }
     }
-}
-
-public static class StringExtension
-{
-    public static Color ToColor(this string self)
+    public static class StringExtension
     {
-        var color = default(Color);
-        if (!ColorUtility.TryParseHtmlString(self, out color))
+        public static Color ToColor(this string self, float alpha = 1f)
         {
-            Debug.LogWarning("Unknown color code... " + self);
+            var color = default(Color);
+            if (!ColorUtility.TryParseHtmlString(self, out color))
+            {
+                Debug.LogWarning("Unknown color code... " + self);
+            }
+            color.a = alpha;
+            return color;
         }
-        return color;
     }
 }

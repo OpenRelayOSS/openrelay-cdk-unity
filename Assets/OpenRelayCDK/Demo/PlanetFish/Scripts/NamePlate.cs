@@ -17,18 +17,27 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
     public class NamePlate : MonoBehaviour
     {
         [SerializeField]
-        public Transform TargetCamera;
-        [SerializeField]
         MeshRenderer textMeshRenderer;
         [SerializeField]
         float ActiveLength = 5f;
+        [SerializeField]
+        TextMesh NameTextMesh;
 
+        float xPosOffset = 0.2f;
+        float yPosOffset = 0.5f;
         bool initialized = false;
+        Transform TargetCamera;
 
-        public void Initialize()
+        public void Initialize(string name, Transform targetCamera)
         {
-
+            NameTextMesh.text = name;
+            TargetCamera = targetCamera;
             initialized = true;
+        }
+
+        public void SetName(string name)
+        {
+            NameTextMesh.text = name;
         }
 
         void Update()

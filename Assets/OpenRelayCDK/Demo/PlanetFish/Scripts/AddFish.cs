@@ -20,7 +20,9 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
     public class AddFish : MonoBehaviour
     {
         [SerializeField]
-        GameObject TypeAPrefab, TypeBPrefab, TypeCPrefab, TypeDPrefab, TypeEPrefab;
+        Camera mainCamera;
+        [SerializeField]
+        GameObject fishPrefab;
         [SerializeField]
         Transform ParentNode;
         [SerializeField]
@@ -41,15 +43,6 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         }
         bool Adding = false;
         bool Clearing = false;
-
-        enum InstantiateType
-        {
-            A = 0,
-            B = 1,
-            C = 2,
-            D = 3,
-            E = 4,
-        }
 
         void Start()
         {
@@ -74,31 +67,13 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             GameObject go = null;
             var position = GetRandPosition();
             var rotate = Quaternion.Euler(0f, GetRandYRotate(), 0f);
+            go = Instantiate(fishPrefab, position, rotate, ParentNode);
             var instantiateType = GetRandInstantiateType();
             Debug.Log("Called" + instantiateType);
-            switch (instantiateType)
-            {
-                case InstantiateType.A:
-                    go = Instantiate(TypeAPrefab, position, rotate, ParentNode);
-                    break;
-                case InstantiateType.B:
-                    go = Instantiate(TypeBPrefab, position, rotate, ParentNode);
-                    break;
-                case InstantiateType.C:
-                    go = Instantiate(TypeCPrefab, position, rotate, ParentNode);
-                    break;
-                case InstantiateType.D:
-                    go = Instantiate(TypeDPrefab, position, rotate, ParentNode);
-                    break;
-                case InstantiateType.E:
-                    go = Instantiate(TypeEPrefab, position, rotate, ParentNode);
-                    break;
-                default:
-                    break;
-            }
             list.Add(go);
             var controller = go.GetComponent<FishController>();
-            controller.InitializeDummy();
+            controller.InitializeDummy(Words.GeneratePhrase(), GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>()); ;
+            controller.SetColor(instantiateType);
             var swim = go.GetComponent<Swim>();
             swim.FishId = list.Count + 5;
             swim.Initialize();
@@ -144,17 +119,17 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             yield break;
         }
 
-        InstantiateType GetRandInstantiateType()
+        public static FishController.ColorType GetRandInstantiateType()
         {
-            return (InstantiateType)UnityEngine.Random.Range(0, 4);
+            return (FishController.ColorType)UnityEngine.Random.Range(0, 4);
         }
 
-        Vector3 GetRandPosition()
+        public static Vector3 GetRandPosition()
         {
             return new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0f, 4f), UnityEngine.Random.Range(-10f, 10f));
         }
 
-        float GetRandYRotate()
+        public static float GetRandYRotate()
         {
             return UnityEngine.Random.Range(0, 359);
         }
