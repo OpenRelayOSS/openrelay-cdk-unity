@@ -38,4 +38,4 @@ Release/
 *.exe
 *.pdb 
 *.cache
-
+.vsconfig
