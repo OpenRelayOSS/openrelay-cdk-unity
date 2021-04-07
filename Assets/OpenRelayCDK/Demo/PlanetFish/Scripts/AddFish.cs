@@ -128,6 +128,10 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         {
             return new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(0f, 4f), UnityEngine.Random.Range(-10f, 10f));
         }
+        public static Vector3 GetRandPositionSquashHeight()
+        {
+            return new Vector3(UnityEngine.Random.Range(-10f, 10f), 1.5f, UnityEngine.Random.Range(-10f, 10f));
+        }
 
         public static float GetRandYRotate()
         {

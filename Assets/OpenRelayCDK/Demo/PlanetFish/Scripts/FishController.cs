@@ -39,6 +39,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         enum InputStatus
         {
             Input,
+            NoInputToXIdentify,
             NoInputToIdentify,
             NoInputIdentified,
         }
@@ -83,6 +84,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         UInt16 playerId;
         UInt16 currentObjectId = 1;
         long noInputCounter = 0;
+        long noXInputCounter = 0;
         long noInputLimit = 3;
         InputStatus inputStatus = InputStatus.NoInputIdentified;
         Transform cameraTransform;
@@ -130,6 +132,8 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         public void ChangeCameraParent(Transform cameraDefaultRoot)
         {
             if (!owner) return;
+            cameraTransform.rotation = Quaternion.identity;
+            cameraTransform.position = new Vector3(0f, 0.5f, -7f);
             cameraTransform.SetParent(cameraDefaultRoot);
         }
 
@@ -189,7 +193,13 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     noInputCounter = (DateTimeOffset.Now - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).Ticks / 10000000;
                 }
 
-                RotateY(h);
+
+                if (inputStatus != InputStatus.NoInputToIdentify && !Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
+                {
+                    inputStatus = InputStatus.NoInputToXIdentify;
+                    noXInputCounter = (DateTimeOffset.Now - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).Ticks / 10000000;
+
+                }
 
                 swim = Input.GetKey(KeyCode.Space);
                 accel = Input.GetKey(KeyCode.LeftShift);
@@ -205,15 +215,18 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             else if (swim && accel) SwimAccel();
             else Idle();
 
-            var angle = Vector3.Angle(cameraTransform.forward, modelTransform.forward);
-            var cross = Vector3.Cross(cameraTransform.forward, modelTransform.forward);
+            Vector3 modelTransformSquashY = modelTransform.forward;
+            modelTransformSquashY.y = 0;
+
+            var angle = Vector3.Angle(cameraTransform.forward, modelTransformSquashY);
+            var cross = Vector3.Cross(cameraTransform.forward, modelTransformSquashY);
             if (1f < angle)
             {
                 cameraTransform.RotateAround(modelTransform.position, cross, angle * Time.deltaTime);
 
                 DistantViewMaterial.SetVector("_HorizontalBar", new Vector4(cameraTransform.localEulerAngles.y / 360f, 0f, 0f, 0f));
-                //distantView.material = DistantViewMaterial;
             }
+
             //x z auto water bladder
             if (inputStatus == InputStatus.NoInputToIdentify)
             {
@@ -224,6 +237,16 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     RotateIdentify();
                 }
             }
+
+            if (inputStatus == InputStatus.NoInputToXIdentify)
+            {
+                var check = (DateTimeOffset.Now - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).Ticks / 10000000;
+                //Debug.Log("noInputLimit:" + noInputLimit + " noInputCounter:" + noInputCounter.ToString() + " check:" + check.ToString());
+                if (noInputLimit + noXInputCounter < check)
+                {
+                    RotateXIdentify();
+                }
+            }
             // adjust provisional fix angle bug.
             modelTransform.eulerAngles = new Vector3(modelTransform.eulerAngles.x, modelTransform.eulerAngles.y, 0f);
             cameraTransform.eulerAngles = new Vector3(cameraTransform.eulerAngles.x, cameraTransform.eulerAngles.y, 0f);
@@ -231,7 +254,10 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
 
         private void RotateX(float x)
         {
-            //modelTransform.Rotate(x * 0.2f, 0, 0);
+            if (-0.2f <= modelTransform.rotation.x && modelTransform.rotation.x <= 0.2f)
+            {
+                modelTransform.Rotate(x * 0.1f, 0, 0);
+            }
         }
 
         private void RotateY(float y)
@@ -251,12 +277,24 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             if ((-0.0001f < newAnglex || newAnglex < 0.0001f)
         &&
          (-0.0001f < newAnglez || newAnglez < 0.0001f))
-            {
+            { 
                 noInputCounter = 0;
                 inputStatus = InputStatus.NoInputIdentified;
             }
         }
+        private void RotateXIdentify()
+        {
+            var newAnglex = modelTransform.eulerAngles.x;
 
+            //modelTransform.eulerAngles = new Vector3(0f, modelTransform.eulerAngles.y, 0f);
+            //cameraTransform.eulerAngles = new Vector3(0f, cameraTransform.eulerAngles.y, 0f);
+
+            if (-0.0001f < newAnglex || newAnglex < 0.0001f)
+            {
+                noXInputCounter = 0;
+                inputStatus = InputStatus.NoInputIdentified;
+            }
+        }
         private void Swim()
         {
             var now = DateTime.Now.Ticks;

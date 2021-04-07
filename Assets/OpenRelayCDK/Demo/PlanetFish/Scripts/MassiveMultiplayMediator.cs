@@ -284,7 +284,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     fish.Initialize((UInt16)p.ID, p.NickName, mainCamera, distantView);
                     var micorophoneIndex = 0;
                     if (useVoice) fishObject.GetComponent<VoiceRecorder>().StartRecorder((UInt16)p.ID, 2, micorophoneIndex);
-                    fishObject.transform.position = AddFish.GetRandPosition();
+                    fishObject.transform.position = AddFish.GetRandPositionSquashHeight();
                     fishObject.transform.rotation = Quaternion.Euler(0f, AddFish.GetRandYRotate(), 0f);
                     var prop = new Hashtable();
                     prop.Add(p.ID + "_NickName", NickNameInputField.text);

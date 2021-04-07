@@ -37,10 +37,11 @@ Material:
     - _CausticTileSize: 2
     m_Colors:
     - _HorizonColor: {r: 0, g: 0.35559025, b: 0.4811321, a: 1}
-    - _HorizontalBar: {r: 0.15971658, g: 0, b: 0, a: 0}
+    - _HorizontalBar: {r: 0.102103285, g: 0, b: 0, a: 0}
     - _IndLightColor: {r: 0.13725491, g: 0.37254903, b: 0.40392157, a: 1}
     - _SkyColor: {r: 0, g: 0.23519713, b: 0.41509432, a: 1}
     - _SkyFadeColor: {r: 0.3, g: 1, b: 1, a: 1}
     - _SkyLightColor: {r: 0, g: 0.8784313, b: 1, a: 1}
     - _SunDirection: {r: 1.92, g: 0.8, b: 0.6, a: 0}
     - _SunLightColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
