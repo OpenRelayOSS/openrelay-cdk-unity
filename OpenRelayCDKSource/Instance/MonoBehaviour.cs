@@ -100,6 +100,11 @@ namespace Com.FurtherSystems.OpenRelay.Or
 
         }
 
+        public virtual void OnOpenRelayRoomDistMapChanged(Dictionary<string,byte[]> mapChanged)
+        {
+
+        }
+
         public virtual void OnOpenRelayPlayerPropertiesChanged(object[] playerAndUpdatedProps)
         {
         }

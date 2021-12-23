@@ -14,8 +14,10 @@ using MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Com.FurtherSystems.OpenRelay
@@ -437,6 +439,71 @@ namespace Com.FurtherSystems.OpenRelay
                     }
 
                     break;
+                case RelayCode.UPDATE_DIST_MAP:
+                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.UPDATE_DIST_MAP");
+                    var revision = message.ReadUInt32();
+                    var unixtime = ToDateTimeFromUnix(message.ReadInt32());
+                    var mode = message.ReadSByte();
+                    var keyBytesLen = message.ReadByte();
+                    alignmentLen = (UInt16)(keyBytesLen % 4);
+                    var valueBytesLen = message.ReadUInt16();
+                    var keyBytes = message.ReadBytes(keyBytesLen);
+                    if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }
+                    content = message.ReadBytes(valueBytesLen);
+
+                    if (_room.DistMapLatestRevision + 1 == revision)
+                    {
+                        _room.DistMapLatestRevision = revision;
+                        var key = Encoding.ASCII.GetString(keyBytes);
+                        if (_room.DistMap.ContainsKey(key))
+                        {
+                            if (mode == -1)// -1 is delete
+                            {
+                                _room.DistMap.Remove(key);
+                            }
+                            else
+                            {
+                                _room.DistMap[key] = content;
+                            }
+                        }
+                        else
+                        {
+                            _room.DistMap.Add(key, content);
+                        }
+                        var changed = new Dictionary<string, byte[]>();
+                        changed.Add(key, content);
+                        OnOpenRelayRoomDistMapChangedCall(changed);
+                        if (_PropertiesInitializing)
+                        {
+                            _PropertiesInitializing = false;
+                            _PropertiesReady = true;
+                        }
+                    }
+                    else if (_room.DistMapLatestRevision + 1 < revision)
+                    {
+                        _room.DistMapShelved.Add(revision, new DistMapRaw(revision, unixtime, mode, keyBytes, content));
+                        // TODO need pick after
+                    }
+                    else
+                    {
+                        OrLog(LogLevel.Verbose, "Invalid revision"+revision);
+                    }
+
+                    break;
+                case RelayCode.PICK_DIST_MAP:
+                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.PICK_DIST_MAP");
+                    //if (header.ContentLen > 0)
+                    //{
+                    //    content = message.ReadBytes(header.ContentLen);
+                    //    UpdateHashtable(content, null, _room.Properties);
+                    //}
+                    //if (_PropertiesInitializing)
+                    //{
+                    //    _PropertiesInitializing = false;
+                    //    _PropertiesReady = true;
+                    //}
+
+                    break;
                 default:
                     OrLogError(LogLevel.Verbose, "HandleMessage error: RelayCode not match, invalid case:" + (RelayCode)header.RelayCode);
 
@@ -489,6 +556,18 @@ namespace Com.FurtherSystems.OpenRelay
             OrLog(LogLevel.Verbose, "Update data hash");
         }
 
+        private static void InitDistMap(UInt32 revision, byte[][] keysBytes, byte[][] valuesBytes,  Dictionary<string, byte[]> dict)
+        {
+            var createdDict = new Dictionary<string, byte[]>();
+
+            for (int i = 0; i < keysBytes.Length; i++)
+            {
+                dict[Encoding.ASCII.GetString(keysBytes[i])] = valuesBytes[i];
+            }
+            _room.DistMapLatestRevision = revision;
+            OrLog(LogLevel.Verbose, "Initialized distributed map");
+        }
+
         private static byte[] ToBytes(Hashtable data)
         {
             var exploded = new StringBuilder();
@@ -516,6 +595,29 @@ namespace Com.FurtherSystems.OpenRelay
             return Encoding.ASCII.GetBytes(exploded.ToString());
         }
 
+        private static byte[] ObjectToBytes(Object obj)
+        {
+            if (obj == null)
+                return null;
+
+            BinaryFormatter bf = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream();
+            bf.Serialize(ms, obj);
+
+            return ms.ToArray();
+        }
+
+        private static Object BytesToObject(byte[] bytes)
+        {
+            MemoryStream memStream = new MemoryStream();
+            BinaryFormatter binForm = new BinaryFormatter();
+            memStream.Write(bytes, 0, bytes.Length);
+            memStream.Seek(0, SeekOrigin.Begin);
+            Object obj = (Object)binForm.Deserialize(memStream);
+
+            return obj;
+        }
+
         private static string[] ToStringList(byte[] data)
         {
             var decoded = Encoding.ASCII.GetString(data);
@@ -539,6 +641,13 @@ namespace Com.FurtherSystems.OpenRelay
                     .Append(rowSeparator);
             }
             return Encoding.ASCII.GetBytes(exploded.ToString());
+        }
+
+        public static DateTime ToDateTimeFromUnix(int unixTimeStamp)
+        {
+            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
         }
     }
 }

@@ -499,6 +499,183 @@ namespace Com.FurtherSystems.OpenRelay
                 stream.Close();
             }
 
+            private void UpdateDistMap(sbyte mode, string key, byte[] value)
+            {
+                if (string.IsNullOrEmpty(key) || key.Length == 0) return;// ignore blank record update.
+
+                if (!_roomJoined && !_PropertiesInitializing) return;
+
+                if (mode == 0)
+                {
+                    if (_room.DistMap.ContainsKey(key))
+                    {
+                        _room.DistMap[key] = value;
+                    }
+                    else
+                    {
+                        _room.DistMap.Add(key, value);
+                    }
+                }
+                else
+                {
+                    if (_room.DistMap.ContainsKey(key))
+                    {
+                        _room.DistMap.Remove(key);
+                    }
+                    else
+                    {
+                        OrLog(LogLevel.Verbose, "Key not found. cannot remove " + key);
+                    }
+                }
+
+                OrLog(LogLevel.Verbose, "MessageSend RelayCode.UPDATE_DIST_MAP");
+
+                var keyBytes = Encoding.ASCII.GetBytes(key);
+                var valueBytes = ObjectToBytes(value);
+
+                var header = new Header();
+                //header.Ver = 0;
+                header.RelayCode = (byte)RelayCode.UPDATE_DIST_MAP;
+                header.ContentCode = (byte)0;
+                header.Mask = (byte)0;
+                header.DestCode = (byte)DestinationCode.StrictBroadcast;
+                header.SrcPid = (PlayerId)Player.ID;
+                header.SrcOid = (ObjectId)Player.ObjectId;
+                header.DestLen = (UInt16)0;
+
+                var revision = (UInt32)0; //request = 0
+                var timestamp = (int)0; //request = 0
+                var keyBytesLen = (byte)keyBytes.Length;
+                var alignmentLen = keyBytesLen % 4;
+                var valueBytesLen = (UInt16)valueBytes.Length;
+
+                header.ContentLen = (UInt16)(sizeof(UInt16) + sizeof(UInt16) + sizeof(UInt32) + sizeof(UInt32) + keyBytesLen + alignmentLen + valueBytesLen);
+
+                var headerSize = Marshal.SizeOf<Header>(header);
+                var headerBytes = new byte[headerSize];
+                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
+                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
+                gch.Free();
+
+                var messageBytes = new byte[headerSize + header.ContentLen];
+                var stream = new MemoryStream(messageBytes);
+                var message = new EndiannessBinaryWriter(stream);
+                try
+                {
+                    message.Write(headerBytes);
+                    message.Write(revision);
+                    message.Write(timestamp);
+                    message.Write(mode);
+                    message.Write(keyBytesLen);
+                    message.Write(valueBytesLen);
+                    message.Write(keyBytes);
+                    if (alignmentLen > 0) { message.Write(new byte[alignmentLen]); }
+                    message.Write(valueBytes);
+                    statefullQueue.Enqueue(messageBytes);
+                }
+                catch (Exception e)
+                {
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
+                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
+                }
+                message.Close();
+                stream.Close();
+            }
+
+            public void UpdateDistMap(string key, byte[] value)
+            {
+                UpdateDistMap(0, key, value);
+            }
+
+            public void RemoveDistMap(string key)
+            {
+                UpdateDistMap(-1, key, new byte[1] { 0});
+            }
+
+            public void PickDistMap(uint revision)
+            {
+                if (revision == 0) return;// ignore revision = 0.
+
+                OrLog(LogLevel.Verbose, "MessageSend RelayCode.PICK_DIST_MAP");
+
+                var header = new Header();
+                //header.Ver = 0;
+                header.RelayCode = (byte)RelayCode.PICK_DIST_MAP;
+                header.ContentCode = (byte)0;
+                header.Mask = (byte)0;
+                header.DestCode = (byte)DestinationCode.StrictBroadcast;
+                header.SrcPid = (PlayerId)Player.ID;
+                header.SrcOid = (ObjectId)Player.ObjectId;
+                header.DestLen = (UInt16)0;
+
+                header.ContentLen = (UInt16)(sizeof(UInt32));
+
+                var headerSize = Marshal.SizeOf<Header>(header);
+                var headerBytes = new byte[headerSize];
+                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
+                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
+                gch.Free();
+
+                var messageBytes = new byte[headerSize + header.ContentLen];
+                var stream = new MemoryStream(messageBytes);
+                var message = new EndiannessBinaryWriter(stream);
+                try
+                {
+                    message.Write(headerBytes);
+                    message.Write(revision);
+                    statefullQueue.Enqueue(messageBytes);
+                }
+                catch (Exception e)
+                {
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
+                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
+                }
+                message.Close();
+                stream.Close();
+            }
+
+            public void NotifyDistMapLatestRevision(int revision)
+            {
+                if (revision == 0) return;// ignore revision = 0.
+
+                OrLog(LogLevel.Verbose, "MessageSend RelayCode.NOTIFY_DIST_MAP_LATEST");
+
+                var header = new Header();
+                //header.Ver = 0;
+                header.RelayCode = (byte)RelayCode.NOTIFY_DIST_MAP_LATEST;
+                header.ContentCode = (byte)0;
+                header.Mask = (byte)0;
+                header.DestCode = (byte)DestinationCode.StrictBroadcast;
+                header.SrcPid = (PlayerId)Player.ID;
+                header.SrcOid = (ObjectId)Player.ObjectId;
+                header.DestLen = (UInt16)0;
+
+                header.ContentLen = (UInt16)(sizeof(UInt32));
+
+                var headerSize = Marshal.SizeOf<Header>(header);
+                var headerBytes = new byte[headerSize];
+                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
+                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
+                gch.Free();
+
+                var messageBytes = new byte[headerSize + header.ContentLen];
+                var stream = new MemoryStream(messageBytes);
+                var message = new EndiannessBinaryWriter(stream);
+                try
+                {
+                    message.Write(headerBytes);
+                    message.Write(revision);
+                    statefullQueue.Enqueue(messageBytes);
+                }
+                catch (Exception e)
+                {
+                    OrLogError(LogLevel.Info, "error: " + e.Message);
+                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
+                }
+                message.Close();
+                stream.Close();
+            }
+
             public void SetMaster(UserSession player)
             {
                 if (!_roomJoined) return;

@@ -45,6 +45,9 @@ namespace Com.FurtherSystems.OpenRelay
         REPLAY_JOIN = 20,
         RELAY_STREAM = 21,
         LOAD_PLAYER = 22,
+        UPDATE_DIST_MAP = 23,
+        PICK_DIST_MAP = 24,
+        NOTIFY_DIST_MAP_LATEST = 25,
         // 100 - 199 Platform Dependency Relay Code
         UNITY_CDK_RELAY = 100,
         UNITY_CDK_RELAY_LATEST = 101,
@@ -312,6 +315,9 @@ namespace Com.FurtherSystems.OpenRelay
 
         private delegate void OnOpenRelayRoomPropertiesChanged(Hashtable changed);
         private static OnOpenRelayRoomPropertiesChanged OnOpenRelayRoomPropertiesChangedCall;
+
+        private delegate void OnOpenRelayRoomDistMapChanged(Dictionary<string, byte[]> changed);
+        private static OnOpenRelayRoomDistMapChanged OnOpenRelayRoomDistMapChangedCall;
 
         private delegate void OnCreatedRoom();
         private static OnCreatedRoom OnCreatedRoomCall;

@@ -202,6 +202,40 @@ namespace Com.FurtherSystems.OpenRelay
                     }
                 }
             }
+
+            public void CheckDistMapShelved()
+            {
+                if (_room == null || _room.DistMapShelved == null || _room.DistMapShelved.Count == 0) return;
+
+                var nextRevision = _room.DistMapLatestRevision + 1;
+                if (_room.DistMapShelved.ContainsKey(nextRevision))
+                {
+                    _room.DistMapLatestRevision = nextRevision;
+                    var raw = _room.DistMapShelved[0];
+                    var key = Encoding.ASCII.GetString(raw.Key);
+                    if (_room.DistMap.ContainsKey(key))
+                    {
+                        if (raw.Mode == -1)// -1 is delete
+                        {
+                            _room.DistMap.Remove(key);
+                        }
+                        else
+                        {
+                            _room.DistMap[key] = raw.Value;
+                        }
+                    }
+                    else
+                    {
+                        _room.DistMap.Add(key, raw.Value);
+                    }
+                }
+                else
+                {
+                    // TODO Retry over logic.
+                    // TODO dead line scheduling.
+                    dealerListener.PickDistMap(nextRevision);
+                }
+            }
         }
     }
 }

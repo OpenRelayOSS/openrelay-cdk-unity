@@ -12,6 +12,7 @@
 //------------------------------------------------------------------------------
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Com.FurtherSystems.OpenRelay
 {
@@ -35,6 +36,9 @@ namespace Com.FurtherSystems.OpenRelay
         public string StatelessDealPort { get; private set; }
         public string StatelessSubPort { get; private set; }
         public Hashtable Properties { get; private set; }
+        public Dictionary<string,byte[]> DistMap { get; private set; }
+        public uint DistMapLatestRevision { get; set; }
+        public Dictionary<UInt32, DistMapRaw> DistMapShelved { get; set; }
         public string[] PropertiesListedInLobby { get; private set; }
         private RoomOptions initialRoomOptions { get; set; }
 
@@ -60,6 +64,9 @@ namespace Com.FurtherSystems.OpenRelay
             StatelessDealPort = stlDealPort;
             StatelessSubPort = stlSubPort;
             Properties = new Hashtable();
+            DistMap = new Dictionary<string, byte[]>();
+            DistMapShelved = new Dictionary<UInt32,DistMapRaw>();
+            DistMapLatestRevision = 0;
             SetProperties = delegate { };
             SetPropertiesListedInLobby = delegate { };
             MaxPlayers = maxPlayers;
@@ -162,5 +169,22 @@ namespace Com.FurtherSystems.OpenRelay
         public string Name;
         public int PlayerCount;
         public int RoomCount;
+    }
+
+    public class DistMapRaw
+    {
+        public UInt32 Revision { get; private set; }
+        public DateTime Timestamp { get; private set; }
+        public sbyte Mode { get; private set; }
+        public byte[] Key { get; private set; }
+        public byte[] Value { get; private set; }
+        public DistMapRaw(UInt32 r, DateTime t, sbyte m, byte[] k, byte[] v)
+        {
+            Revision = r;
+            Timestamp = t;
+            Mode = m;
+            Key = k;
+            Value = v;
+        }
     }
 }

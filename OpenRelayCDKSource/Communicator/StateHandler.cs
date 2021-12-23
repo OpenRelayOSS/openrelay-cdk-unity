@@ -258,6 +258,7 @@ namespace Com.FurtherSystems.OpenRelay
                     foreach (var room in list)
                     {
                         yield return StartCoroutine(GetRoomProperties(room));
+                        //yield return StartCoroutine(GetRoomDistMap(room));
                         yield return new WaitForSeconds(0.01f);
                     }
 
@@ -751,6 +752,83 @@ namespace Com.FurtherSystems.OpenRelay
 
                 OrLog(LogLevel.Verbose, "Get room properties end");
             }
+            public IEnumerator GetRoomDistMap(RoomInfo room)
+            {
+                OrLog(LogLevel.Verbose, "Get room distmap start");
+                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/room/distmap/" + room.Name);
+                webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
+                yield return webRequest.SendWebRequest();
+                if (webRequest.isNetworkError)
+                {
+                    OrLogError(LogLevel.Info, webRequest.error);
+                    // TODO VERSION ERROR HANDLE CALLBACK
+                    OrLogError(LogLevel.Info, "get room distmap failed. http status code:" + webRequest.responseCode);
+
+                    yield break;
+                }
+
+                var streamReader = new MemoryStream(webRequest.downloadHandler.data);
+                var messageReader = new EndiannessBinaryReader(streamReader);
+
+                if (webRequest.responseCode != 200)
+                {
+                    OrLog(LogLevel.Verbose, "get room distmap failed. http status code:" + webRequest.responseCode);
+
+                    yield break;
+                }
+
+                var responseCode = (ResponseCode)messageReader.ReadUInt16();
+                var contentLen = messageReader.ReadUInt16();
+                var elementsCount = messageReader.ReadUInt16();
+                var alignment = messageReader.ReadUInt16();
+                var mergedRevision = messageReader.ReadUInt32();
+                var keysLength = new List<byte>();
+                var keysLengthAlignment = (elementsCount * 1) % 4;
+                var valuesLength = new List<UInt16>();
+                var valuesLengthAlignment = (elementsCount * 2) % 4;
+                var keysBytes = new List<byte[]>();
+                var valuesBytes = new List<byte[]>();
+                if (contentLen > 0)
+                {
+                    //fetch keys length
+                    for (int i = 0; i < elementsCount; i++)
+                    {
+                        keysLength.Add(messageReader.ReadByte());
+                    }
+                    for (int i = 0; i < keysLengthAlignment; i++)
+                    {
+                        messageReader.ReadByte();
+                    }
+
+                    //fetch values length
+                    for (int i = 0; i < elementsCount; i++)
+                    {
+                        valuesLength.Add(messageReader.ReadUInt16());
+                    }
+                    for (int i = 0; i < valuesLengthAlignment; i++)
+                    {
+                        messageReader.ReadByte();
+                    }
+
+                    //fetch key bytes
+                    foreach (var keyLength in keysLength)
+                    {
+                        keysBytes.Add(messageReader.ReadBytes(keyLength));
+                        messageReader.ReadBytes(keyLength % 4); // read and destroy
+                    }
+
+                    //fetch value bytes
+                    foreach (var valueLength in valuesLength)
+                    {
+                        valuesBytes.Add(messageReader.ReadBytes(valueLength));
+                        messageReader.ReadBytes(valueLength % 4); // read and destroy
+                    }
+
+                    InitDistMap(mergedRevision, keysBytes.ToArray(), valuesBytes.ToArray(), room.DistMap);
+                }
+
+                OrLog(LogLevel.Verbose, "Get room distmap end");
+            }
 
             private IEnumerator JoinRoomPrepareComplate(string roomName, byte[] messageBytes)
             {
@@ -895,10 +973,22 @@ namespace Com.FurtherSystems.OpenRelay
                 while (!subscriberListener.Aborted)
                 {
                     subscriberListener.RetrieveQueueStatefull();
+                    subscriberListener.CheckDistMapShelved();
                     yield return null;
                 }
 
                 OrLog(LogLevel.Verbose, "RetrieveQueueStatefull end");
+            }
+
+            IEnumerator CheckDistMapShelved()
+            {
+                while (!subscriberListener.Aborted)
+                {
+                    subscriberListener.CheckDistMapShelved();
+                    yield return null;
+                }
+
+                OrLog(LogLevel.Verbose, "CheckDistMapShelved end");
             }
         }
     }

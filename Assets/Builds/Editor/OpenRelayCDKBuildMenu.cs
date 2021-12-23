@@ -230,15 +230,17 @@ namespace Com.FurtherSystems.OpenRelay.Builds
                 process.StartInfo.Arguments = arguments.ToString();
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.CreateNoWindow = false;
                 process.StartInfo.UseShellExecute = false;
                 process.Start();
 
-                var stdOut = process.StandardOutput.ReadToEnd();
                 var stdErr = process.StandardError.ReadToEnd();
+                //var stdOut = process.StandardOutput.ReadToEnd();
+                var stdOut = string.Empty;
+                //var stdErr = string.Empty;
                 process.WaitForExit();
 
-                if (!string.IsNullOrEmpty(stdOut)) Debug.Log(logPrefix + stdOut);
+                //if (!string.IsNullOrEmpty(stdOut)) Debug.Log(logPrefix + stdOut);
 
                 if (stdErr.Contains(": error") || stdErr.Contains("Exception:"))
                 {
