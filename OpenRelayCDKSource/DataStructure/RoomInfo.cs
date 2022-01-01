@@ -18,10 +18,12 @@ namespace Com.FurtherSystems.OpenRelay
 {
     public class RoomInfo
     {
-        public delegate void SetPropertiesCall(Hashtable table);
-        public SetPropertiesCall SetProperties { get; private set; }
-        public delegate void SetPropertiesListedInLobbyCall(string[] list);
-        public SetPropertiesListedInLobbyCall SetPropertiesListedInLobby { get; private set; }
+        public delegate void UpdateDistMapCall(string key, byte[] value);
+        public UpdateDistMapCall UpdateDistMap { get; private set; }
+
+        public delegate void RemoveDistMapCall(string key);
+        public RemoveDistMapCall RemoveDistMap { get; private set; }
+
         public int PlayerCount { get; private set; }
         public bool IsOpen { get; set; }// TODO need private set?
         public bool IsVisible { get; set; }// TODO need private set?
@@ -35,8 +37,9 @@ namespace Com.FurtherSystems.OpenRelay
         public string StatefullSubPort { get; private set; }
         public string StatelessDealPort { get; private set; }
         public string StatelessSubPort { get; private set; }
-        public Hashtable Properties { get; private set; }
         public Dictionary<string,byte[]> DistMap { get; private set; }
+        public uint DistMapMergedRevision { get; set; }
+        public uint DistMapNotifiedRevision { get; set; }
         public uint DistMapLatestRevision { get; set; }
         public Dictionary<UInt32, DistMapRaw> DistMapShelved { get; set; }
         public string[] PropertiesListedInLobby { get; private set; }
@@ -63,12 +66,13 @@ namespace Com.FurtherSystems.OpenRelay
             StatefullSubPort = stfSubPort;
             StatelessDealPort = stlDealPort;
             StatelessSubPort = stlSubPort;
-            Properties = new Hashtable();
             DistMap = new Dictionary<string, byte[]>();
             DistMapShelved = new Dictionary<UInt32,DistMapRaw>();
+            DistMapMergedRevision = 0;
+            DistMapNotifiedRevision = 0;
             DistMapLatestRevision = 0;
-            SetProperties = delegate { };
-            SetPropertiesListedInLobby = delegate { };
+            UpdateDistMap = delegate { };
+            RemoveDistMap = delegate { };
             MaxPlayers = maxPlayers;
             IsOpen = initial.IsOpen;
             IsVisible = initial.IsVisible;
@@ -76,13 +80,13 @@ namespace Com.FurtherSystems.OpenRelay
             PlayerCount = 0;
         }
         
-        public RoomInfo(SetPropertiesCall propCaller,
-            SetPropertiesListedInLobbyCall listCaller,
+        public RoomInfo(UpdateDistMapCall setCaller,
+            RemoveDistMapCall removeCaller,
             RoomInfo original)
         { 
             CopyFromOriginal(original);
-            SetProperties = propCaller;
-            SetPropertiesListedInLobby = listCaller;
+            UpdateDistMap = setCaller;
+            RemoveDistMap = removeCaller;
         }
 
         public RoomInfo(UInt16 playerCount, RoomInfo original)
@@ -104,19 +108,19 @@ namespace Com.FurtherSystems.OpenRelay
             StatefullSubPort = original.StatefullSubPort;
             StatelessDealPort = original.StatelessDealPort;
             StatelessSubPort = original.StatelessSubPort;
-            SetProperties = original?.SetProperties ?? delegate { };
-            SetPropertiesListedInLobby = original?.SetPropertiesListedInLobby ?? delegate { };
-            Properties = original.Properties;
+            UpdateDistMap = original?.UpdateDistMap ?? delegate { };
+            RemoveDistMap = original?.RemoveDistMap ?? delegate { };
+            DistMap = original.DistMap;
+            DistMapShelved = original.DistMapShelved;
             PropertiesListedInLobby = original.PropertiesListedInLobby;
             initialRoomOptions = original.initialRoomOptions;
         }
 
-        public void InitializeProperties()
+        public void InitializeDistMap()
         {
-            if (initialRoomOptions?.CustomRoomProperties?.Count > 0)
+            if (initialRoomOptions?.DistMap?.Count > 0)
             {
-                SetProperties(initialRoomOptions.CustomRoomProperties);
-                SetPropertiesListedInLobby(initialRoomOptions.CustomRoomPropertiesForLobby);
+                DistMap = initialRoomOptions.DistMap;
             }
         }
     }
@@ -132,8 +136,8 @@ namespace Com.FurtherSystems.OpenRelay
         public int PlayerTtl;
         public int EmptyRoomTtl;
 
-        public Hashtable CustomRoomProperties = new Hashtable();
-        public string[] CustomRoomPropertiesForLobby = new string[] { };
+        public Dictionary<string, byte[]> DistMap = new Dictionary<string, byte[]>();
+        //public string[] CustomRoomPropertiesForLobby = new string[] { };
         public string[] Plugins = new string[] { };
         public bool SuppressRoomEvents { get { return this.suppressRoomEventsField; } }
         private bool suppressRoomEventsField = false;
@@ -151,9 +155,7 @@ namespace Com.FurtherSystems.OpenRelay
         [Obsolete("Use property with uppercase naming instead.")]
         public byte maxPlayers { get { return this.MaxPlayers; } set { this.MaxPlayers = value; } }
         [Obsolete("Use property with uppercase naming instead.")]
-        public Hashtable customRoomProperties { get { return this.CustomRoomProperties; } set { this.CustomRoomProperties = value; } }
-        [Obsolete("Use property with uppercase naming instead.")]
-        public string[] customRoomPropertiesForLobby { get { return this.CustomRoomPropertiesForLobby; } set { this.CustomRoomPropertiesForLobby = value; } }
+        public Dictionary<string, byte[]> roomDistMap { get { return this.DistMap; } set { this.DistMap = value; } }
         [Obsolete("Use property with uppercase naming instead.")]
         public string[] plugins { get { return this.Plugins; } set { this.Plugins = value; } }
         [Obsolete("Use property with uppercase naming instead.")]

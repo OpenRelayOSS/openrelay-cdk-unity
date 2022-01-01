@@ -61,6 +61,11 @@ namespace Com.FurtherSystems.OpenRelay
 
         void OnOpenRelayRoomPropertiesChanged(Hashtable changed);
 
+        void OnOpenRelayRoomDistMapChanged(sbyte mode, Dictionary<string, byte[]> changed);
+
+        void OnOpenRelayRoomDistMapGapDetected(uint MergedRevision, uint LatestRevision);
+        void OnOpenRelayRoomDistMapGapClosed(uint MergedRevision, uint LatestRevision);
+
         //void OnOpenRelayInstantiate(OpenRelayMessageInfo info);
 
         //void OnOpenRelayJoinRoomFailed(object[] codeAndMsg);

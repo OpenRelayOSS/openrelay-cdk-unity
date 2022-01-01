@@ -16,6 +16,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -286,20 +287,18 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     if (useVoice) fishObject.GetComponent<VoiceRecorder>().StartRecorder((UInt16)p.ID, 2, micorophoneIndex);
                     fishObject.transform.position = AddFish.GetRandPositionSquashHeight();
                     fishObject.transform.rotation = Quaternion.Euler(0f, AddFish.GetRandYRotate(), 0f);
-                    var prop = new Hashtable();
-                    prop.Add(p.ID + "_NickName", NickNameInputField.text);
-                    prop.Add(p.ID + "_Color", ColorDropdown.value.ToString());
                     fish.SetName(NickNameInputField.text);
                     fish.SetColor((FishController.ColorType)ColorDropdown.value);
-                    OpenRelayClient.Room.SetProperties(prop);
+                    OpenRelayClient.Room.UpdateDistMap(p.ID + "_NickName", Encoding.ASCII.GetBytes(NickNameInputField.text));
+                    OpenRelayClient.Room.UpdateDistMap(p.ID + "_Color", Encoding.ASCII.GetBytes(ColorDropdown.value.ToString()));
                 }
                 else
                 {
                     fish.Initialize((UInt16)p.ID, p.NickName, mainCamera);
                     if (useVoice) fishObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)p.ID, 2);
-                    var NickName = (string)OpenRelayClient.Room.Properties[p.ID + "_NickName"];
+                    var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[p.ID + "_NickName"]);
                     if (NickName != null) fish.SetName(NickName);
-                    var Color = OpenRelayClient.Room.Properties[p.ID + "_Color"];
+                    var Color = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[p.ID + "_Color"]);
                     if (Color != null) fish.SetColor((FishController.ColorType)int.Parse((string)Color));
                 }
                 var swim = fishObject.GetComponent<Swim>();
@@ -338,9 +337,9 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             Fishes.TryAdd(player.ID.ToString(), fish);
             fish.Initialize((UInt16)player.ID, player.NickName, mainCamera);
             if (useVoice) fishGameObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)player.ID, 2);
-            var NickName = (string)OpenRelayClient.Room.Properties[player.ID + "_NickName"];
+            var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[player.ID + "_NickName"]);
             if (NickName != null) fish.SetName(NickName);
-            var Color = OpenRelayClient.Room.Properties[player.ID + "_Color"];
+            var Color = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[player.ID + "_Color"]);
             if (Color != null) fish.SetColor((FishController.ColorType)int.Parse((string)Color));
             var swim = fishGameObject.GetComponent<Swim>();
             swim.FishId = player.ID;

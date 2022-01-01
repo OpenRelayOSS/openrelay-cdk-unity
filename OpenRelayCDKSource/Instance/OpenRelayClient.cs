@@ -106,7 +106,7 @@ namespace Com.FurtherSystems.OpenRelay
     public static partial class OpenRelayClient
     {
         public const string UA_UNITY_CDK = "Unity-CDK";
-        public const string UNITY_CDK_VERSION = "0.9.8";
+        public const string UNITY_CDK_VERSION = "0.9.9";
         private const string BASE_URL = "http://";
         private const bool AutoEntry = true;
 
@@ -230,6 +230,9 @@ namespace Com.FurtherSystems.OpenRelay
             OnConnectedToOpenRelayCall += cbs.OnConnectedToOpenRelay;
             OnConnectionFailCall += cbs.OnConnectionFail;
             OnOpenRelayRoomPropertiesChangedCall += cbs.OnOpenRelayRoomPropertiesChanged;
+            OnOpenRelayRoomDistMapChangedCall += cbs.OnOpenRelayRoomDistMapChanged;
+            OnOpenRelayRoomDistMapGapDetectedCall += cbs.OnOpenRelayRoomDistMapGapDetected;
+            OnOpenRelayRoomDistMapGapClosedCall += cbs.OnOpenRelayRoomDistMapGapClosed;
             OnCreatedRoomCall += cbs.OnCreatedRoom;
             OnDisconnectedCall += cbs.OnDisconnected;
             //OnFailedToConnectCall += cbs.OnFailedToConnect;
@@ -255,6 +258,9 @@ namespace Com.FurtherSystems.OpenRelay
             OnConnectedToOpenRelayCall -= cbs.OnConnectedToOpenRelay;
             OnConnectionFailCall -= cbs.OnConnectionFail;
             OnOpenRelayRoomPropertiesChangedCall -= cbs.OnOpenRelayRoomPropertiesChanged;
+            OnOpenRelayRoomDistMapChangedCall -= cbs.OnOpenRelayRoomDistMapChanged;
+            OnOpenRelayRoomDistMapGapDetectedCall -= cbs.OnOpenRelayRoomDistMapGapDetected;
+            OnOpenRelayRoomDistMapGapClosedCall -= cbs.OnOpenRelayRoomDistMapGapClosed;
             OnCreatedRoomCall -= cbs.OnCreatedRoom;
             OnDisconnectedCall -= cbs.OnDisconnected;
             //OnFailedToConnectCall -= cbs.OnFailedToConnect;
@@ -316,8 +322,14 @@ namespace Com.FurtherSystems.OpenRelay
         private delegate void OnOpenRelayRoomPropertiesChanged(Hashtable changed);
         private static OnOpenRelayRoomPropertiesChanged OnOpenRelayRoomPropertiesChangedCall;
 
-        private delegate void OnOpenRelayRoomDistMapChanged(Dictionary<string, byte[]> changed);
+        private delegate void OnOpenRelayRoomDistMapChanged(sbyte mode, Dictionary<string, byte[]> changed);
         private static OnOpenRelayRoomDistMapChanged OnOpenRelayRoomDistMapChangedCall;
+
+        private delegate void OnOpenRelayRoomDistMapGapDetected(uint MergedRevision, uint LatestRevision);
+        private static OnOpenRelayRoomDistMapGapDetected OnOpenRelayRoomDistMapGapDetectedCall;
+
+        private delegate void OnOpenRelayRoomDistMapGapClosed(uint MergedRevision, uint LatestRevision);
+        private static OnOpenRelayRoomDistMapGapClosed OnOpenRelayRoomDistMapGapClosedCall;
 
         private delegate void OnCreatedRoom();
         private static OnCreatedRoom OnCreatedRoomCall;
@@ -376,8 +388,8 @@ namespace Com.FurtherSystems.OpenRelay
         private static bool _roomJoining = false;
         private static bool _roomJoined = false;
         private static bool _roomJoinComplete = false;
-        private static bool _PropertiesInitializing = false;
-        private static bool _PropertiesReady = false;
+        private static bool _DistMapInitializing = false;
+        private static bool _DistMapReady = false;
         private static bool _leaveComplete = false;
 
         #endregion
@@ -455,11 +467,14 @@ namespace Com.FurtherSystems.OpenRelay
 
         private static StateHandler stateHandler;
 
-        public static void Connect(string version, string serverAddress, string entryPort)
+        public static void Connect(string version, string serverAddress, string entryPort, LogLevel level=LogLevel.Verbose, string colorCode="#00ffff")
         {
             _version = version;
             _serverAddress = serverAddress;
             _entryPort = entryPort;
+            Color color;
+            ColorUtility.TryParseHtmlString(colorCode, out color);
+            SetupLog(level, color);
             Connect();
         }
 
@@ -467,13 +482,13 @@ namespace Com.FurtherSystems.OpenRelay
         {
             _serverAddress = _settings.ServerAddress;
             _entryPort = _settings.EntryPort;
+            SetupLog(_settings.LogVerboseLevel, _settings.LogLabelColor);
             _version = version;
             Connect();
         }
 
         private static void Connect()
         {
-            SetupLog(_settings.LogVerboseLevel, _settings.LogLabelColor);
             OrLog(LogLevel.Info, "Log Initialized");
             //todo destroy logic here
             _room = null;
@@ -522,8 +537,8 @@ namespace Com.FurtherSystems.OpenRelay
             _roomJoining = false;
             _roomJoined = false;
             _roomJoinComplete = false;
-            _PropertiesInitializing = false;
-            _PropertiesReady = false;
+            _DistMapInitializing = false;
+            _DistMapReady = false;
             _objectIds = new List<PlayerId>() { (ObjectId)1 };
             _masterClient = _player;
             _room = null;

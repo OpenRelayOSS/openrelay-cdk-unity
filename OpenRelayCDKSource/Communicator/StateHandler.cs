@@ -28,6 +28,9 @@ namespace Com.FurtherSystems.OpenRelay
     {
         internal class StateHandler : MonoBehaviour
         {
+            public bool GetRoomListLock = false;
+            bool createAndJoinRoomAbort = false;
+            bool prepareAndJoinRoomAbort = false;
 
             [StructLayout(LayoutKind.Explicit)]
             internal class RoomResponse
@@ -144,8 +147,6 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "post logon end");
             }
 
-            public bool GetRoomListLock = false;
-
             public List<RoomInfo> RoomList = new List<RoomInfo>();
 
             private IEnumerator GetRoomList()
@@ -257,8 +258,7 @@ namespace Com.FurtherSystems.OpenRelay
 
                     foreach (var room in list)
                     {
-                        yield return StartCoroutine(GetRoomProperties(room));
-                        //yield return StartCoroutine(GetRoomDistMap(room));
+                        yield return StartCoroutine(GetRoomDistMap(room));
                         yield return new WaitForSeconds(0.01f);
                     }
 
@@ -308,18 +308,11 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "Get room info end");
             }
 
-            bool createAndJoinRoomAbort = false;
             public IEnumerator CreateAndJoinRoom(string roomName, UInt16 maxPlayer, RoomOptions presetRoomOptions)
             {
                 OrLog(LogLevel.Verbose, "post create and join room start");
                 yield return StartCoroutine(CreateRoom(roomName, maxPlayer, presetRoomOptions, false));
                 if (createAndJoinRoomAbort) yield break;
-                //prepare join
-                //player variables :name load
-                //prepare complete
-                yield return new WaitForSeconds(0.05f);
-                OrLog(LogLevel.Verbose, "relay message handle start.");
-                stateHandler.StartQueue();
 
                 yield return StartCoroutine(PrepareAndJoinRoom(roomName, new string[] { }));
                 OrLog(LogLevel.Verbose, "post create and join room end");
@@ -330,12 +323,6 @@ namespace Com.FurtherSystems.OpenRelay
             {
                 OrLog(LogLevel.Verbose, "post create or join room start");
                 yield return StartCoroutine(CreateRoom(roomName, maxPlayer, presetRoomOptions, true));
-                //prepare join
-                //player variables :name load
-                //prepare complete
-                yield return new WaitForSeconds(0.05f);
-                OrLog(LogLevel.Verbose, "relay message handle start.");
-                stateHandler.StartQueue();
 
                 yield return StartCoroutine(PrepareAndJoinRoom(roomName, new string[] { }));
                 OrLog(LogLevel.Verbose, "post create or join room end");
@@ -479,8 +466,8 @@ namespace Com.FurtherSystems.OpenRelay
                 dealerListener.Start();
 
                 _room = new RoomInfo(
-                    dealerListener.SetProperties,
-                    dealerListener.SetPropertiesListedInLobby,
+                    dealerListener.UpdateDistMap,
+                    dealerListener.RemoveDistMap,
                     _room);
 
                 OnCreatedRoomCall();
@@ -488,7 +475,6 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "post create room end");
             }
 
-            bool prepareAndJoinRoomAbort = false;
             public IEnumerator PrepareAndJoinRoom(string roomName, string[] propKeys)
             {
                 OrLog(LogLevel.Verbose, "post PrepareAndJoinRoom start");
@@ -639,6 +625,7 @@ namespace Com.FurtherSystems.OpenRelay
                     }
                     _players.Add(otherPlayer);
                 }
+
                 dealerListener.SetLogin(assginPid);
                 _player.Login(assginPid, assginPid == masterPid);
                 _players.Add(_player);
@@ -651,49 +638,47 @@ namespace Com.FurtherSystems.OpenRelay
 
                 // TODO must be other network objects create.
 
-                _PropertiesInitializing = true;
-                OrLog(LogLevel.Verbose, "Join room Properties initializing start");
+                _DistMapInitializing = true;
+                _DistMapReady = false;
+                OrLog(LogLevel.Verbose, "Join room DistMap initializing start");
 
-                var retryOver = 3;
+                var timeout = 10f;
+                var retryOver = 3;//retry over timeout total 30 seconds
                 var retry = 0;
+                var step = 0.01f;
 
-                do {
+                do
+                {
                     if (Player.IsMasterClient)
                     {
                         _masterClient = _player;
-                        _room.InitializeProperties();
-                        if (_room.Properties.Count == 0)
+                        _room.InitializeDistMap();
+                        if (_room.DistMap.Count == 0)
                         {
-                            _PropertiesReady = true;
+                            _DistMapReady = true;
+                            break;
                         }
                     }
-                    else
-                    {
-                        dealerListener.GetProperties();// ISSUE 1 timing bug. require gap load logic.
-                    }
 
-                    OrLog(LogLevel.Verbose, "Join room Properties initializing ... ");
+                    yield return subscriberListener.CloseGapDistMap();
 
-                    var timeout = 1.5f;
-                    var step = 0.01f;
                     var counter = 0f;
-                    // wait ready for Properties.
+                    // wait for closing gap distmap
                     while (counter < timeout)
                     {
-                        if (_PropertiesReady) break;
+                        if (_DistMapReady) break;
 
                         yield return new WaitForSeconds(step);
                         counter += step;
                     }
 
-                    if (_PropertiesReady)
+                    if (_DistMapReady) break;
+
+                    if (retry >= retryOver)
                     {
-                        OrLog(LogLevel.Verbose, "Join room Properties initializing ok");
-                        break;
-                    }
-                    else if(retry >= retryOver)
-                    {
-                        OrLog(LogLevel.Verbose, "Join room Properties initializing retry over failed. " + retry.ToString()); prepareAndJoinRoomAbort = true;
+                        OrLog(LogLevel.Verbose, "Join room DistMap initializing retry over failed. " + retry.ToString());
+                        OnOpenRelayJoinRoomFailedCall((short)webRequest.responseCode, "failed polling");//TODO error handle case;
+                        prepareAndJoinRoomAbort = true;
                         _roomJoining = false;
                         _roomJoined = false;
                         _roomJoinComplete = false;
@@ -702,11 +687,19 @@ namespace Com.FurtherSystems.OpenRelay
                     else
                     {
                         retry++;
-                        OrLog(LogLevel.Verbose, "Join room Properties initializing retry ... " + retry.ToString());
+                        OrLog(LogLevel.Verbose, "Join room DistMap initializing retry ... " + retry.ToString());
                     }
 
                 } while (true);
 
+                OrLog(LogLevel.Verbose, "Join room DistMap initializing ok");
+
+                OrLog(LogLevel.Verbose, "relay message handle start.");
+                stateHandler.StartRetrieveQueue();
+                // DistMap GapCloser Start
+                stateHandler.StartDistMapCapCloser();
+
+                // RelayReceiveOnly -> RelayJoined
                 _roomJoining = false;
                 _roomJoined = true;
                 OnJoinedRoomCall();
@@ -717,41 +710,6 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "Join room prepare polling end");
             }
 
-            public IEnumerator GetRoomProperties(RoomInfo room)
-            {
-                OrLog(LogLevel.Verbose, "Get room properties start");
-                UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/room/prop/" + room.Name);
-                webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
-                yield return webRequest.SendWebRequest();
-                if (webRequest.isNetworkError)
-                {
-                    OrLogError(LogLevel.Info, webRequest.error);
-                    // TODO VERSION ERROR HANDLE CALLBACK
-                    OrLogError(LogLevel.Info, "get room properties failed. http status code:" + webRequest.responseCode);
-
-                    yield break;
-                }
-
-                var streamReader = new MemoryStream(webRequest.downloadHandler.data);
-                var messageReader = new EndiannessBinaryReader(streamReader);
-
-                if (webRequest.responseCode != 200)
-                {
-                    OrLog(LogLevel.Verbose, "get room properties failed. http status code:" + webRequest.responseCode);
-
-                    yield break;
-                }
-
-                var responseCode = (ResponseCode)messageReader.ReadUInt16();
-                var contentLen = messageReader.ReadUInt16();
-                if (0 < contentLen)
-                {
-                    var content = messageReader.ReadBytes(contentLen);
-                    UpdateHashtable(content, null, room.Properties);
-                }
-
-                OrLog(LogLevel.Verbose, "Get room properties end");
-            }
             public IEnumerator GetRoomDistMap(RoomInfo room)
             {
                 OrLog(LogLevel.Verbose, "Get room distmap start");
@@ -782,13 +740,14 @@ namespace Com.FurtherSystems.OpenRelay
                 var elementsCount = messageReader.ReadUInt16();
                 var alignment = messageReader.ReadUInt16();
                 var mergedRevision = messageReader.ReadUInt32();
+                var latestRevision = messageReader.ReadUInt32();
                 var keysLength = new List<byte>();
                 var keysLengthAlignment = (elementsCount * 1) % 4;
                 var valuesLength = new List<UInt16>();
                 var valuesLengthAlignment = (elementsCount * 2) % 4;
                 var keysBytes = new List<byte[]>();
                 var valuesBytes = new List<byte[]>();
-                if (contentLen > 0)
+                if (contentLen > 0 && elementsCount > 0)
                 {
                     //fetch keys length
                     for (int i = 0; i < elementsCount; i++)
@@ -824,7 +783,7 @@ namespace Com.FurtherSystems.OpenRelay
                         messageReader.ReadBytes(valueLength % 4); // read and destroy
                     }
 
-                    InitDistMap(mergedRevision, keysBytes.ToArray(), valuesBytes.ToArray(), room.DistMap);
+                    InitDistMap(mergedRevision, latestRevision, keysBytes.ToArray(), valuesBytes.ToArray(), room.DistMap);
                 }
 
                 OrLog(LogLevel.Verbose, "Get room distmap end");
@@ -963,32 +922,37 @@ namespace Com.FurtherSystems.OpenRelay
             }
 
             // ISSUE 21 Bad performance.
-            public void StartQueue()
+            public void StartRetrieveQueue()
             {
-                StartCoroutine(RetrieveQueueStatefull()); // no yield return ok.
+                StartCoroutine(RetrieveQueueStatefullCall()); // no yield return ok.
             }
-            
-            IEnumerator RetrieveQueueStatefull()
+            public void StartDistMapCapCloser()
             {
-                while (!subscriberListener.Aborted)
-                {
-                    subscriberListener.RetrieveQueueStatefull();
-                    subscriberListener.CheckDistMapShelved();
-                    yield return null;
-                }
-
-                OrLog(LogLevel.Verbose, "RetrieveQueueStatefull end");
+                StartCoroutine(CloseGapDistMapCall()); // no yield return ok.
             }
 
-            IEnumerator CheckDistMapShelved()
+            IEnumerator RetrieveQueueStatefullCall()
             {
+                OrLog(LogLevel.Verbose, "RetrieveQueueStatefullCall start");
+
                 while (!subscriberListener.Aborted)
                 {
-                    subscriberListener.CheckDistMapShelved();
-                    yield return null;
+                    yield return subscriberListener.RetrieveQueueStatefull();
                 }
 
-                OrLog(LogLevel.Verbose, "CheckDistMapShelved end");
+                OrLog(LogLevel.Verbose, "RetrieveQueueStatefullCall end");
+            }
+
+            IEnumerator CloseGapDistMapCall()
+            {
+                OrLog(LogLevel.Verbose, "CloseGapDistMapCall start");
+
+                while (!subscriberListener.Aborted)
+                {
+                    yield return subscriberListener.CloseGapDistMap();
+                }
+
+                OrLog(LogLevel.Verbose, "CloseGapDistMapCall end");
             }
         }
     }

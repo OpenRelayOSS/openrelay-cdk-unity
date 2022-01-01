@@ -341,169 +341,11 @@ namespace Com.FurtherSystems.OpenRelay
                 LoginId = id;
             }
 
-            public void SetProperties(Hashtable table, bool isCreateRoom)
-            {
-                var keysLength = table.Keys.Count;
-                if (keysLength == 0) return;// ignore blank record update.
-                var keys = new string[keysLength];
-                var values = new object[keysLength];
-                table.Keys.CopyTo(keys, 0);
-                table.Values.CopyTo(values, 0);
-                for (int index = 0; index < keysLength; index++)
-                {
-                    _room.Properties[keys[index]] = values[index];
-                }
-                
-                if (!_roomJoined && !_PropertiesInitializing) return;
-
-                OrLog(LogLevel.Verbose, "MessageSend RelayCode.SET_LEGACY_MAP");
-
-                var converted = ToBytes(table);
-                var keysBytes = ToExplodeBytes(keys);
-
-                var header = new Header();
-                //header.Ver = 0;
-                header.RelayCode = (byte)RelayCode.SET_LEGACY_MAP;
-                header.ContentCode = (byte)0;
-                header.Mask = (byte)0;
-                header.DestCode = (byte)DestinationCode.StrictBroadcast;
-                header.SrcPid = (PlayerId)Player.ID;
-                header.SrcOid = (ObjectId)Player.ObjectId;
-                header.DestLen = (UInt16)0;
-
-                var keysBytesLen = (UInt16)keysBytes.Length;
-                var alignmentLen = keysBytesLen % 4;
-                var convertedBytesLen = (UInt16)converted.Length;
-
-                header.ContentLen = (UInt16)(sizeof(UInt16) + sizeof(UInt16) + keysBytesLen + alignmentLen + convertedBytesLen );
-
-                var headerSize = Marshal.SizeOf<Header>(header);
-                var headerBytes = new byte[headerSize];
-                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
-                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
-                gch.Free();
-
-                var messageBytes = new byte[headerSize + header.ContentLen];
-                var stream = new MemoryStream(messageBytes);
-                var message = new EndiannessBinaryWriter(stream);
-                try
-                {
-                    message.Write(headerBytes);
-                    message.Write(keysBytesLen);
-                    message.Write(convertedBytesLen);
-                    message.Write(keysBytes);
-                    if (alignmentLen > 0) { message.Write(new byte[alignmentLen]); }
-                    message.Write(converted);
-                    statefullQueue.Enqueue(messageBytes);
-                }
-                catch (Exception e)
-                {
-                    OrLogError(LogLevel.Info, "error: " + e.Message);
-                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
-                }
-                message.Close();
-                stream.Close();
-            }
-
-            public void SetProperties(Hashtable table)
-            {
-                SetProperties(table, false);
-            }
-
-            public void SetPropertiesListedInLobby(string[] list, bool isCreateRoom)
-            {
-                if (!inRoom && !_roomJoined) return;
-
-                OrLog(LogLevel.Verbose, "MessageSend RelayCode.SET_LOBBY_MAP");
-
-                var converted = ToExplodeBytes(list);
-
-                var header = new Header();
-                //header.Ver = 0;
-                header.RelayCode = (byte)RelayCode.SET_LOBBY_MAP;
-                header.ContentCode = (byte)0;
-                header.Mask = (byte)0;
-                header.DestCode = (byte)DestinationCode.StrictBroadcast;
-                header.SrcPid = (PlayerId)0;// didn't assign yet.
-                header.SrcOid = (ObjectId)0;// didn't assign yet.
-                header.DestLen = (UInt16)0;
-                header.ContentLen = (UInt16)converted.Length;
-
-                var headerSize = Marshal.SizeOf<Header>(header);
-                var headerBytes = new byte[headerSize];
-                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
-                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
-                gch.Free();
-
-                var propertiesSize = header.ContentLen;
-                var messageBytes = new byte[headerSize + propertiesSize];
-                var stream = new MemoryStream(messageBytes);
-                var message = new EndiannessBinaryWriter(stream);
-                try
-                {
-                    message.Write(headerBytes);
-                    message.Write(converted);
-                    statefullQueue.Enqueue(messageBytes);
-                }
-                catch (Exception e)
-                {
-                    OrLogError(LogLevel.Info, "error: " + e.Message);
-                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
-                }
-                message.Close();
-                stream.Close();
-            }
-
-            public void SetPropertiesListedInLobby(string[] list)
-            {
-                SetPropertiesListedInLobby(list, false);
-            }
-
-            public void GetProperties()
-            {
-                if (!_roomJoined && !_PropertiesInitializing) return;
-
-                OrLog(LogLevel.Verbose, "MessageSend RelayCode.GET_LEGACY_MAP");
-
-                var header = new Header();
-                //header.Ver = 0;
-                header.RelayCode = (byte)RelayCode.GET_LEGACY_MAP;
-                header.ContentCode = (byte)0;
-                header.Mask = (byte)0;
-                header.DestCode = (byte)DestinationCode.StrictBroadcast;
-                header.SrcPid = (PlayerId)Player.ID;
-                header.SrcOid = (ObjectId)Player.ObjectId;
-                header.DestLen = (UInt16)0;
-                header.ContentLen = (UInt16)0;
-
-                var headerSize = Marshal.SizeOf<Header>(header);
-                var headerBytes = new byte[headerSize];
-                var gch = GCHandle.Alloc(headerBytes, GCHandleType.Pinned);
-                Marshal.StructureToPtr(header, gch.AddrOfPinnedObject(), false);
-                gch.Free();
-
-                var messageBytes = new byte[headerSize];
-                var stream = new MemoryStream(messageBytes);
-                var message = new EndiannessBinaryWriter(stream);
-                try
-                {
-                    message.Write(headerBytes);
-                    statefullQueue.Enqueue(messageBytes);
-                }
-                catch (Exception e)
-                {
-                    OrLogError(LogLevel.Info, "error: " + e.Message);
-                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
-                }
-                message.Close();
-                stream.Close();
-            }
-
             private void UpdateDistMap(sbyte mode, string key, byte[] value)
             {
                 if (string.IsNullOrEmpty(key) || key.Length == 0) return;// ignore blank record update.
 
-                if (!_roomJoined && !_PropertiesInitializing) return;
+                if (!_roomJoined && !_DistMapInitializing) return; // throw exception
 
                 if (mode == 0)
                 {
@@ -634,7 +476,7 @@ namespace Com.FurtherSystems.OpenRelay
                 stream.Close();
             }
 
-            public void NotifyDistMapLatestRevision(int revision)
+            public void NotifyDistMapLatestRevision(uint revision)
             {
                 if (revision == 0) return;// ignore revision = 0.
 

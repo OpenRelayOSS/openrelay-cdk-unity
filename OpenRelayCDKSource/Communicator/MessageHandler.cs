@@ -59,7 +59,7 @@ namespace Com.FurtherSystems.OpenRelay
             }
 
             // TODO fix provisional logics.
-            if ((RelayCode)header.RelayCode != RelayCode.JOIN && !(_roomJoined || _PropertiesInitializing)) return;
+            if ((RelayCode)header.RelayCode != RelayCode.JOIN && !(_roomJoined || _DistMapInitializing)) return;
 
             switch ((RelayCode)header.RelayCode)
             {
@@ -276,33 +276,33 @@ namespace Com.FurtherSystems.OpenRelay
 
                     break;
                 case RelayCode.SET_LEGACY_MAP:
-                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.SET_LEGACY_MAP");
+                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.SET_LEGACY_MAP is omit");
                     var keysBytesLen = message.ReadUInt16();
                     alignmentLen = (UInt16)(keysBytesLen % 4);
                     var contentBytesLen = message.ReadUInt16();
                     var keysBytes = message.ReadBytes(keysBytesLen);
                     if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }
                     content = message.ReadBytes(contentBytesLen);
-                    UpdateHashtable(content, keysBytes, _room.Properties);
-                    OnOpenRelayRoomPropertiesChangedCall(_room.Properties);
-                    if (_PropertiesInitializing)
+                    //UpdateHashtable(content, keysBytes, _room.Properties);
+                    //OnOpenRelayRoomPropertiesChangedCall(_room.Properties);
+                    if (_DistMapInitializing)
                     {
-                        _PropertiesInitializing = false;
-                        _PropertiesReady = true;
+                        _DistMapInitializing = false;
+                        _DistMapReady = true;
                     }
 
                     break;
                 case RelayCode.GET_LEGACY_MAP:
-                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.GET_LEGACY_MAP");
+                    OrLog(LogLevel.Verbose, "HandleMessage RelayCode.GET_LEGACY_MAP is omit");
                     if (header.ContentLen > 0)
                     {
                         content = message.ReadBytes(header.ContentLen);
-                        UpdateHashtable(content, null, _room.Properties);
+                        //UpdateHashtable(content, null, _room.Properties);
                     }
-                    if (_PropertiesInitializing)
+                    if (_DistMapInitializing)
                     {
-                        _PropertiesInitializing = false;
-                        _PropertiesReady = true;
+                        _DistMapInitializing = false;
+                        _DistMapReady = true;
                     }
 
                     break;
@@ -451,9 +451,10 @@ namespace Com.FurtherSystems.OpenRelay
                     if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }
                     content = message.ReadBytes(valueBytesLen);
 
-                    if (_room.DistMapLatestRevision + 1 == revision)
+                    if (_room.DistMapMergedRevision + 1 == revision)
                     {
                         _room.DistMapLatestRevision = revision;
+                        _room.DistMapMergedRevision = revision;
                         var key = Encoding.ASCII.GetString(keyBytes);
                         if (_room.DistMap.ContainsKey(key))
                         {
@@ -472,17 +473,13 @@ namespace Com.FurtherSystems.OpenRelay
                         }
                         var changed = new Dictionary<string, byte[]>();
                         changed.Add(key, content);
-                        OnOpenRelayRoomDistMapChangedCall(changed);
-                        if (_PropertiesInitializing)
-                        {
-                            _PropertiesInitializing = false;
-                            _PropertiesReady = true;
-                        }
+                        OnOpenRelayRoomDistMapChangedCall(mode, changed);
                     }
-                    else if (_room.DistMapLatestRevision + 1 < revision)
+                    else if (_room.DistMapMergedRevision + 1 < revision)
                     {
+                        _room.DistMapLatestRevision = revision;
                         _room.DistMapShelved.Add(revision, new DistMapRaw(revision, unixtime, mode, keyBytes, content));
-                        // TODO need pick after
+                        // raise gap detect event after added.
                     }
                     else
                     {
@@ -492,18 +489,62 @@ namespace Com.FurtherSystems.OpenRelay
                     break;
                 case RelayCode.PICK_DIST_MAP:
                     OrLog(LogLevel.Verbose, "HandleMessage RelayCode.PICK_DIST_MAP");
-                    //if (header.ContentLen > 0)
-                    //{
-                    //    content = message.ReadBytes(header.ContentLen);
-                    //    UpdateHashtable(content, null, _room.Properties);
-                    //}
-                    //if (_PropertiesInitializing)
-                    //{
-                    //    _PropertiesInitializing = false;
-                    //    _PropertiesReady = true;
-                    //}
+                    var pickRevision = message.ReadUInt32();
+                    var pickLatestRevision = message.ReadUInt32();
+                    var pickUnixtime = ToDateTimeFromUnix(message.ReadInt32());
+                    var pickMode = message.ReadSByte();
+                    var pickKeyBytesLen = message.ReadByte();
+                    alignmentLen = (UInt16)(pickKeyBytesLen % 4);
+                    var pickValueBytesLen = message.ReadUInt16();
+                    var pickKeyBytes = message.ReadBytes(pickKeyBytesLen);
+                    if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }
+                    content = message.ReadBytes(pickValueBytesLen);
+
+                    if (_room.DistMapMergedRevision + 1 == pickRevision)
+                    {
+                        if (_room.DistMapLatestRevision < pickLatestRevision) _room.DistMapLatestRevision = pickLatestRevision;
+
+                        _room.DistMapMergedRevision = pickRevision;
+                        var key = Encoding.ASCII.GetString(pickKeyBytes);
+                        if (_room.DistMap.ContainsKey(key))
+                        {
+                            if (pickMode == -1)// -1 is delete
+                            {
+                                _room.DistMap.Remove(key);
+                            }
+                            else
+                            {
+                                _room.DistMap[key] = content;
+                            }
+                        }
+                        else
+                        {
+                            _room.DistMap.Add(key, content);
+                        }
+                        var changed = new Dictionary<string, byte[]>();
+                        changed.Add(key, content);
+                        OnOpenRelayRoomDistMapChangedCall(pickMode, changed);
+                    }
+                    else if (_room.DistMapMergedRevision + 1 < pickRevision)
+                    {
+                        if (_room.DistMapLatestRevision < pickLatestRevision) _room.DistMapLatestRevision = pickLatestRevision;
+
+                        if (!_room.DistMapShelved.ContainsKey(pickRevision))
+                        {
+                            _room.DistMapShelved.Add(pickRevision, new DistMapRaw(pickRevision, pickUnixtime, pickMode, pickKeyBytes, content));
+                        }
+                    }
+                    else
+                    {
+                        OrLog(LogLevel.Verbose, "Invalid revision or already merged revision" + pickRevision);
+                    }
 
                     break;
+                case RelayCode.NOTIFY_DIST_MAP_LATEST:
+                    // send only
+
+                    break;
+
                 default:
                     OrLogError(LogLevel.Verbose, "HandleMessage error: RelayCode not match, invalid case:" + (RelayCode)header.RelayCode);
 
@@ -556,7 +597,7 @@ namespace Com.FurtherSystems.OpenRelay
             OrLog(LogLevel.Verbose, "Update data hash");
         }
 
-        private static void InitDistMap(UInt32 revision, byte[][] keysBytes, byte[][] valuesBytes,  Dictionary<string, byte[]> dict)
+        private static void InitDistMap(UInt32 mergedRevision, UInt32 latestRevision, byte[][] keysBytes, byte[][] valuesBytes,  Dictionary<string, byte[]> dict)
         {
             var createdDict = new Dictionary<string, byte[]>();
 
@@ -564,7 +605,9 @@ namespace Com.FurtherSystems.OpenRelay
             {
                 dict[Encoding.ASCII.GetString(keysBytes[i])] = valuesBytes[i];
             }
-            _room.DistMapLatestRevision = revision;
+            _room.DistMapMergedRevision = mergedRevision;
+            _room.DistMapLatestRevision = latestRevision;
+
             OrLog(LogLevel.Verbose, "Initialized distributed map");
         }
 

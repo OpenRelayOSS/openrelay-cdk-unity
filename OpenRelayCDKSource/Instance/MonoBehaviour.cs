@@ -100,7 +100,15 @@ namespace Com.FurtherSystems.OpenRelay.Or
 
         }
 
-        public virtual void OnOpenRelayRoomDistMapChanged(Dictionary<string,byte[]> mapChanged)
+        public virtual void OnOpenRelayRoomDistMapChanged(sbyte mode, Dictionary<string,byte[]> mapChanged)
+        {
+
+        }
+        public virtual void OnOpenRelayRoomDistMapGapDetected(uint MergedRevision, uint LatestRevision)
+        {
+
+        }
+        public virtual void OnOpenRelayRoomDistMapGapClosed(uint MergedRevision, uint LatestRevision)
         {
 
         }

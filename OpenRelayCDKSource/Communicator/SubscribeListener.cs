@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Collections;
 
 namespace Com.FurtherSystems.OpenRelay
 {
@@ -168,7 +169,7 @@ namespace Com.FurtherSystems.OpenRelay
                 }
             }
 
-            public void RetrieveQueueStatefull()
+            public IEnumerator RetrieveQueueStatefull()
             {
                 while (!statefullQueue.IsEmpty)
                 {
@@ -200,41 +201,77 @@ namespace Com.FurtherSystems.OpenRelay
                     {
                         break;
                     }
+                    yield return null;
                 }
+                yield break;
             }
 
-            public void CheckDistMapShelved()
+            public IEnumerator CloseGapDistMap()
             {
-                if (_room == null || _room.DistMapShelved == null || _room.DistMapShelved.Count == 0) return;
-
-                var nextRevision = _room.DistMapLatestRevision + 1;
-                if (_room.DistMapShelved.ContainsKey(nextRevision))
+                if (_room.DistMapLatestRevision == 0)
                 {
-                    _room.DistMapLatestRevision = nextRevision;
-                    var raw = _room.DistMapShelved[0];
-                    var key = Encoding.ASCII.GetString(raw.Key);
-                    if (_room.DistMap.ContainsKey(key))
+                    yield return stateHandler.GetRoomDistMap(_room);
+                }
+
+                if (_room.DistMapLatestRevision != _room.DistMapMergedRevision)
+                {
+                    var before = _DistMapReady;
+                    _DistMapReady = false;
+
+                    // Detect Gap
+                    if (before) OnOpenRelayRoomDistMapGapDetectedCall(_room.DistMapMergedRevision, _room.DistMapLatestRevision);
+
+                    var nextRevision = _room.DistMapMergedRevision + 1;
+                    if (_room.DistMapShelved.ContainsKey(nextRevision))
                     {
-                        if (raw.Mode == -1)// -1 is delete
+                        _room.DistMapMergedRevision = nextRevision;
+                        var raw = _room.DistMapShelved[_room.DistMapMergedRevision];
+                        var key = Encoding.ASCII.GetString(raw.Key);
+                        if (_room.DistMap.ContainsKey(key))
                         {
-                            _room.DistMap.Remove(key);
+                            if (raw.Mode == -1)// -1 is delete
+                            {
+                                _room.DistMap.Remove(key);
+                            }
+                            else
+                            {
+                                _room.DistMap[key] = raw.Value;
+                            }
                         }
                         else
                         {
-                            _room.DistMap[key] = raw.Value;
+                            _room.DistMap.Add(key, raw.Value);
                         }
+                        yield return null;
                     }
                     else
                     {
-                        _room.DistMap.Add(key, raw.Value);
+                        // TODO Retry over logic.
+                        // TODO dead line scheduling.
+                        dealerListener.PickDistMap(nextRevision);
+                        yield return null;
                     }
                 }
-                else
+
+                if (_room.DistMapLatestRevision == _room.DistMapMergedRevision)
                 {
-                    // TODO Retry over logic.
-                    // TODO dead line scheduling.
-                    dealerListener.PickDistMap(nextRevision);
+                    var before = _DistMapReady;
+                    _DistMapReady = true;
+
+                    if (!before)
+                    {
+                        OnOpenRelayRoomDistMapGapClosedCall(_room.DistMapMergedRevision, _room.DistMapLatestRevision);
+                    }
+
+                    if (_room.DistMapMergedRevision > _room.DistMapNotifiedRevision)
+                    {
+                        dealerListener.NotifyDistMapLatestRevision(_room.DistMapMergedRevision);
+                        _room.DistMapNotifiedRevision = _room.DistMapMergedRevision;
+                    }
+
+                    yield return null;
                 }
+                yield break;
             }
         }
     }
