@@ -713,6 +713,7 @@ namespace Com.FurtherSystems.OpenRelay
             public IEnumerator GetRoomDistMap(RoomInfo room)
             {
                 OrLog(LogLevel.Verbose, "Get room distmap start");
+
                 UnityWebRequest webRequest = UnityWebRequest.Get(BASE_URL + _serverAddress + ":" + _entryPort + "/room/distmap/" + room.Name);
                 webRequest.SetRequestHeader("User-Agent", UA_UNITY_CDK);
                 yield return webRequest.SendWebRequest();
@@ -742,9 +743,9 @@ namespace Com.FurtherSystems.OpenRelay
                 var mergedRevision = messageReader.ReadUInt32();
                 var latestRevision = messageReader.ReadUInt32();
                 var keysLength = new List<byte>();
-                var keysLengthAlignment = (elementsCount * 1) % 4;
+                var keysLengthAlignment = 4 - (elementsCount * 1) % 4;
                 var valuesLength = new List<UInt16>();
-                var valuesLengthAlignment = (elementsCount * 2) % 4;
+                var valuesLengthAlignment = 4 - (elementsCount * 2) % 4;
                 var keysBytes = new List<byte[]>();
                 var valuesBytes = new List<byte[]>();
                 if (contentLen > 0 && elementsCount > 0)
@@ -773,14 +774,14 @@ namespace Com.FurtherSystems.OpenRelay
                     foreach (var keyLength in keysLength)
                     {
                         keysBytes.Add(messageReader.ReadBytes(keyLength));
-                        messageReader.ReadBytes(keyLength % 4); // read and destroy
+                        messageReader.ReadBytes(4 - keyLength % 4); // read and destroy
                     }
 
                     //fetch value bytes
                     foreach (var valueLength in valuesLength)
                     {
                         valuesBytes.Add(messageReader.ReadBytes(valueLength));
-                        messageReader.ReadBytes(valueLength % 4); // read and destroy
+                        messageReader.ReadBytes(4 - valueLength % 4); // read and destroy
                     }
 
                     InitDistMap(mergedRevision, latestRevision, keysBytes.ToArray(), valuesBytes.ToArray(), room.DistMap);

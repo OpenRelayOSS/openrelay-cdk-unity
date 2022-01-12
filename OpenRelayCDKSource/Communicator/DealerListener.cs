@@ -244,7 +244,7 @@ namespace Com.FurtherSystems.OpenRelay
                 var nameBytes = Encoding.UTF8.GetBytes(_player.NickName);
                 OrLog(LogLevel.Verbose, "send name bytes: " + BitConverter.ToString(nameBytes));
                 var joinSeedSize = JoinGuid.Length;
-                var alignmentLen = joinSeedSize % 4;
+                var alignmentLen = 4 - joinSeedSize % 4;
                 var nameSize = nameBytes.Length;
 
                 var header = new Header();
@@ -373,7 +373,8 @@ namespace Com.FurtherSystems.OpenRelay
                 OrLog(LogLevel.Verbose, "MessageSend RelayCode.UPDATE_DIST_MAP");
 
                 var keyBytes = Encoding.ASCII.GetBytes(key);
-                var valueBytes = ObjectToBytes(value);
+                //var valueBytes = ObjectToBytes(value);
+                var valueBytes = value;
 
                 var header = new Header();
                 //header.Ver = 0;
@@ -388,7 +389,7 @@ namespace Com.FurtherSystems.OpenRelay
                 var revision = (UInt32)0; //request = 0
                 var timestamp = (int)0; //request = 0
                 var keyBytesLen = (byte)keyBytes.Length;
-                var alignmentLen = keyBytesLen % 4;
+                var alignmentLen = 4 - keyBytesLen % 4;
                 var valueBytesLen = (UInt16)valueBytes.Length;
 
                 header.ContentLen = (UInt16)(sizeof(UInt16) + sizeof(UInt16) + sizeof(UInt32) + sizeof(UInt32) + keyBytesLen + alignmentLen + valueBytesLen);
@@ -413,12 +414,12 @@ namespace Com.FurtherSystems.OpenRelay
                     message.Write(keyBytes);
                     if (alignmentLen > 0) { message.Write(new byte[alignmentLen]); }
                     message.Write(valueBytes);
+                    OrLog(LogLevel.Verbose, "keylen " + keyBytesLen.ToString() +" valuelen " + valueBytesLen.ToString() + " key " + keyBytes.ToString() + " value " + valueBytes.ToString());
                     statefullQueue.Enqueue(messageBytes);
                 }
                 catch (Exception e)
                 {
-                    OrLogError(LogLevel.Info, "error: " + e.Message);
-                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
+                    OrLogError(LogLevel.Info, "error: " + e.Message);                    OrLogError(LogLevel.Verbose, "stacktrace: " + e.StackTrace);
                 }
                 message.Close();
                 stream.Close();
