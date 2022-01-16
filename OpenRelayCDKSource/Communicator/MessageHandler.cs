@@ -445,7 +445,7 @@ namespace Com.FurtherSystems.OpenRelay
                     var unixtime = ToDateTimeFromUnix(message.ReadInt32());
                     var mode = message.ReadSByte();
                     var keyBytesLen = message.ReadByte();
-                    alignmentLen = (UInt16)(keyBytesLen % 4);
+                    alignmentLen = (UInt16)(4 - keyBytesLen % 4);
                     var valueBytesLen = message.ReadUInt16();
                     var keyBytes = message.ReadBytes(keyBytesLen);
                     if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }
@@ -494,7 +494,7 @@ namespace Com.FurtherSystems.OpenRelay
                     var pickUnixtime = ToDateTimeFromUnix(message.ReadInt32());
                     var pickMode = message.ReadSByte();
                     var pickKeyBytesLen = message.ReadByte();
-                    alignmentLen = (UInt16)(pickKeyBytesLen % 4);
+                    alignmentLen = (UInt16)(4 - pickKeyBytesLen % 4);
                     var pickValueBytesLen = message.ReadUInt16();
                     var pickKeyBytes = message.ReadBytes(pickKeyBytesLen);
                     if (alignmentLen > 0) { message.ReadBytes(alignmentLen); }

@@ -299,7 +299,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[p.ID + "_NickName"]);
                     if (NickName != null) fish.SetName(NickName);
                     var Color = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[p.ID + "_Color"]);
-                    if (Color != null) fish.SetColor((FishController.ColorType)int.Parse((string)Color));
+                    if (Color != null) fish.SetColor((FishController.ColorType)int.Parse(Color));
                 }
                 var swim = fishObject.GetComponent<Swim>();
                 swim.FishId = p.ID;
@@ -340,7 +340,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[player.ID + "_NickName"]);
             if (NickName != null) fish.SetName(NickName);
             var Color = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[player.ID + "_Color"]);
-            if (Color != null) fish.SetColor((FishController.ColorType)int.Parse((string)Color));
+            if (Color != null) fish.SetColor((FishController.ColorType)int.Parse(Color));
             var swim = fishGameObject.GetComponent<Swim>();
             swim.FishId = player.ID;
             swim.Initialize();
