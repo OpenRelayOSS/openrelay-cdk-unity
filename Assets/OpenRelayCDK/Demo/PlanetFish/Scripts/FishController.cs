@@ -156,6 +156,16 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             if (initialized && owner) ; // sync color here.
         }
 
+        public void MuteSound(bool enable)
+        {
+            player.enabled = enable;
+        }
+
+        public void MuteVoice(bool enable)
+        {
+            recorder.enabled = enable;
+        }
+
         void Update()
         {
             if (!initialized) return;

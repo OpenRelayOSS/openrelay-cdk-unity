@@ -29,7 +29,7 @@ namespace Com.FurtherSystems.OpenRelay
             Broadcasting = 3,
         }
         [SerializeField]
-        bool AutoStart = true;
+        bool AutoStart = false;
         [SerializeField]
         public int PreferMicrophoneIndex = 0;
         [SerializeField]

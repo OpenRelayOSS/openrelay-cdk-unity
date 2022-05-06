@@ -13,7 +13,7 @@ namespace Com.FurtherSystems.OpenRelay
     public class VoicePlayer : MonoBehaviour
     {
         [SerializeField]
-        bool AutoStart = true;
+        bool AutoStart = false;
         [SerializeField]
         bool OpusEncode = false;
         [SerializeField]

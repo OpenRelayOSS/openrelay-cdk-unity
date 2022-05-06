@@ -283,6 +283,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                 {
                     currentObjectId = OpenRelayClient.AllocateObjectId();
                     fish.Initialize((UInt16)p.ID, p.NickName, mainCamera, distantView);
+                    fish.MuteVoice(useVoice);
                     var micorophoneIndex = 0;
                     if (useVoice) fishObject.GetComponent<VoiceRecorder>().StartRecorder((UInt16)p.ID, 2, micorophoneIndex);
                     fishObject.transform.position = AddFish.GetRandPositionSquashHeight();
@@ -295,6 +296,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                 else
                 {
                     fish.Initialize((UInt16)p.ID, p.NickName, mainCamera);
+                    fish.MuteSound(useVoice);
                     if (useVoice) fishObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)p.ID, 2);
                     var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[p.ID + "_NickName"]);
                     if (NickName != null) fish.SetName(NickName);
@@ -336,6 +338,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             var fish = fishGameObject.GetComponent<FishController>();
             Fishes.TryAdd(player.ID.ToString(), fish);
             fish.Initialize((UInt16)player.ID, player.NickName, mainCamera);
+            fish.MuteSound(useVoice);
             if (useVoice) fishGameObject.GetComponent<VoicePlayer>().StartPlayer((UInt16)player.ID, 2);
             var NickName = Encoding.ASCII.GetString(OpenRelayClient.Room.DistMap[player.ID + "_NickName"]);
             if (NickName != null) fish.SetName(NickName);
