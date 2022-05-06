@@ -19,6 +19,8 @@ using System.IO;
 namespace Com.FurtherSystems.OpenRelayPerformanceSample
 {
     [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(VoicePlayer))]
+    [RequireComponent(typeof(VoiceRecorder))]
     //[RequireComponent(typeof(TransformReplicator))]
     public class FishController : MonoBehaviour
     {
@@ -94,10 +96,14 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
         bool initialized = false;
         Quaternion recvRotation;
         Vector3 recvPosition;
+        VoicePlayer player;
+        VoiceRecorder recorder;
 
         void Awake()
         {
             rigiedbody = GetComponent<Rigidbody>();
+            player = GetComponent<VoicePlayer>();
+            recorder = GetComponent<VoiceRecorder>();
             owner = false;
             syncTime = second / SyncPerSec;
             elapsedTime = 0f;
