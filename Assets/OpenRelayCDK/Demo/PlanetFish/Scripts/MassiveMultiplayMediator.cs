@@ -160,7 +160,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
 
         public override void OnLobbyStatisticsUpdate(List<RoomLimit> roomLimits) { }
         public override void OnOpenRelayPlayerPropertiesChanged(object[] playerAndUpdatedProps) { }
-        public override void OnOpenRelayRoomPropertiesChanged(Hashtable changed) 
+        public override void OnOpenRelayRoomPropertiesChanged(Hashtable changed)
         {
             Debug.Log("properties changed");
             if (changed != null)
@@ -183,7 +183,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                                 Fishes[playerId.ToString()].SetColor((FishController.ColorType)int.Parse((string)changed[key]));
                             }
                         }
-                    } 
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------ // <copyright file="OpenRelayCDKBuildSettingsEditor.cs" company="FurtherSystem Co.,Ltd."> // Copyright (C) 2018 FurtherSystem Co.,Ltd. All rights reserved. // </copyright> // <author>FurtherSystem Co.,Ltd.</author> // <email>info@furthersystem.com</email> // <summary> // OpenRelay Client Scripts. // </summary> //------------------------------------------------------------------------------ using UnityEngine; using UnityEditor;
+﻿﻿//------------------------------------------------------------------------------ // <copyright file="OpenRelayCDKBuildSettingsEditor.cs" company="FurtherSystem Co.,Ltd."> // Copyright (C) 2018 FurtherSystem Co.,Ltd. All rights reserved. // </copyright> // <author>FurtherSystem Co.,Ltd.</author> // <email>info@furthersystem.com</email> // <summary> // OpenRelay Client Scripts. // </summary> //------------------------------------------------------------------------------ using UnityEngine; using UnityEditor;
 
 namespace Com.FurtherSystems.OpenRelay.Builds
 {

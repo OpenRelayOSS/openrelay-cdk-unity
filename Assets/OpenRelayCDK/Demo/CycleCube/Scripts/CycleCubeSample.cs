@@ -54,7 +54,7 @@ namespace Com.FurtherSystems.OpenRelaySample
         private TMP_Text ConnectOrDisconnectText;
         [SerializeField]
         private TMP_InputField ConnectOrDisconnectInputField;
-        
+
         [SerializeField]
         private Button JoinOrLeaveButton;
         [SerializeField]
@@ -157,7 +157,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             {
                 case Status.Disconnected:
                     var dest = ConnectOrDisconnectInputField.text.Split(':');
-                    //if dest not valid ... error 
+                    //if dest not valid ... error
                     Transit(Status.Connecting);
                     Connect(string.Empty, dest[0], dest[1]);
                     break;
@@ -259,7 +259,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             SetNameButton.interactable = false;
             SetNameInputField.interactable = false;
         }
-        
+
         private void TransitConnectedUI()
         {
             StatusText.color = "#00B29A".ToColor();
@@ -341,7 +341,7 @@ namespace Com.FurtherSystems.OpenRelaySample
             OpenRelayClient.Disconnect();
         }
         //DisconnectComplete
-        
+
         private void Join(string name)
         {
             var option = new OpenRelay.RoomOptions();

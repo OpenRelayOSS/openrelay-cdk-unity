@@ -186,8 +186,8 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
                     elapsedTime = 0f;
                 }
             }
-            else 
-            { 
+            else
+            {
                 RecvTransformUpdate();
             }
         }
@@ -293,7 +293,7 @@ namespace Com.FurtherSystems.OpenRelayPerformanceSample
             if ((-0.0001f < newAnglex || newAnglex < 0.0001f)
         &&
          (-0.0001f < newAnglez || newAnglez < 0.0001f))
-            { 
+            {
                 noInputCounter = 0;
                 inputStatus = InputStatus.NoInputIdentified;
             }

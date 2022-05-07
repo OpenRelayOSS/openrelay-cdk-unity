@@ -45,7 +45,7 @@ namespace Com.FurtherSystems.OpenRelay
 
         UInt16 CurrentPlayerId = 0;
         UInt16 CurrentObjectId = 0;
-        
+
         string microphoneName = string.Empty;
 
         const int samplingFrequency = 48000;
