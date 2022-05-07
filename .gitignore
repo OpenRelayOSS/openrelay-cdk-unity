@@ -38,3 +38,6 @@ Release/
 *.pdb 
 *.cache
 .vsconfig
+
+# openrelay
+Assets/OpenRelayCDK/Editor/OpenRelayScriptPostProcess.cs*
