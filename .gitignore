@@ -5,7 +5,9 @@ Thumbs.db
 .Trashes
 
 # unity
-Builds/
+/Builds/*.unitypackage
+/Builds/*.log
+Work/
 Library/
 Logs/
 obj/
