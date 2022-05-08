@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1888953935, guid: bcf9aea121fb66f438ef6ad47ae57f19, type: 3}
+  m_Script: {fileID: 0}
   m_Name: OpenRelayCDKSettings
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp:Com.FurtherSystems.OpenRelay:OpenRelayCDKSettings
   ServerAddress: 
   EntryPort: 7000
   Mode: 1

@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿﻿﻿//------------------------------------------------------------------------------
 // <copyright file="OpenRelayClient.cs" company="FurtherSystem Co.,Ltd.">
 // Copyright (C) 2018 FurtherSystem Co.,Ltd. All rights reserved.
 // This software is released under the MIT License.
@@ -208,7 +208,7 @@ namespace Com.FurtherSystems.OpenRelay
         private static List<IOrCallbacks> callbacks = new List<IOrCallbacks>();
         private static SubscriberListener subscriberListener;
         private static DealerListener dealerListener;
-        
+
         public static void RegistCallbacks(IOrCallbacks cbs) 
         {
             OrLog(LogLevel.Info,"Regist callbacks");

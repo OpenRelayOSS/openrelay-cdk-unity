@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿﻿//------------------------------------------------------------------------------
 // <copyright file="StateHandler.cs" company="FurtherSystem Co.,Ltd.">
 // Copyright (C) 2018 FurtherSystem Co.,Ltd. All rights reserved.
 // This software is released under the MIT License.

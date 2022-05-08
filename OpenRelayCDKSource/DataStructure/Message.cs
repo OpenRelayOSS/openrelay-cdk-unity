@@ -63,7 +63,7 @@ namespace Com.FurtherSystems.OpenRelay
             _alignment2 = 0;
         }
 
-	// ISSUE 23 should use constructor ?
+    // ISSUE 23 should use constructor ?
         public static byte[] CreateHeader(
             byte ver,
             RelayCode msgCode,
