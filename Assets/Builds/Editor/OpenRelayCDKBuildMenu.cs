@@ -301,9 +301,9 @@ namespace Com.FurtherSystems.OpenRelay.Builds
             var currentPath = Directory.GetCurrentDirectory();
             var outputDllPath = currentPath + "/" + settings.OutputPath + "/" + settings.OutputDll;
             var outputDllCdkPath = currentPath + "/" + settings.OutputCDKPath + "/" + settings.OutputDll;
-            try { File.Move(outputDllCdkPath + ".meta", outputDllPath + ".meta"); } catch (FileNotFoundException noe) { }
-            try { File.Move(outputDllCdkPath, outputDllPath); } catch(FileNotFoundException noe) {  }
-            try { File.Move(settings.SourceInactiveRootPath + ".meta", settings.SourceActiveRootPath + ".meta"); } catch(FileNotFoundException noe) {  }
+            try { File.Move(outputDllCdkPath + ".meta", outputDllPath + ".meta"); } catch (FileNotFoundException noe) { Debug.Log(noe.Message); }
+            try { File.Move(outputDllCdkPath, outputDllPath); } catch(FileNotFoundException noe) { Debug.Log(noe.Message); }
+            try { File.Move(settings.SourceInactiveRootPath + ".meta", settings.SourceActiveRootPath + ".meta"); } catch(FileNotFoundException noe) { Debug.Log(noe.Message); }
             Directory.Move(settings.SourceInactiveRootPath, settings.SourceActiveRootPath);
         }
 
@@ -312,9 +312,9 @@ namespace Com.FurtherSystems.OpenRelay.Builds
             var currentPath = Directory.GetCurrentDirectory();
             var outputDllPath = currentPath + "/" + settings.OutputPath + "/" + settings.OutputDll;
             var outputDllCdkPath = currentPath + "/" + settings.OutputCDKPath + "/" + settings.OutputDll;
-            try { File.Move(outputDllPath + ".meta", outputDllCdkPath + ".meta"); } catch(FileNotFoundException noe) {  }
-            try { File.Move(outputDllPath, outputDllCdkPath); } catch (FileNotFoundException noe) { }
-            try { File.Move(settings.SourceActiveRootPath + ".meta", settings.SourceInactiveRootPath + ".meta"); } catch(FileNotFoundException noe) {  }
+            try { File.Move(outputDllPath + ".meta", outputDllCdkPath + ".meta"); } catch(FileNotFoundException noe) { Debug.Log(noe.Message); }
+            try { File.Move(outputDllPath, outputDllCdkPath); } catch (FileNotFoundException noe) { Debug.Log(noe.Message); }
+            try { File.Move(settings.SourceActiveRootPath + ".meta", settings.SourceInactiveRootPath + ".meta"); } catch(FileNotFoundException noe) { Debug.Log(noe.Message); }
             Directory.Move(settings.SourceActiveRootPath, settings.SourceInactiveRootPath);
         }
 
