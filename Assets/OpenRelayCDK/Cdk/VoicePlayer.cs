@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.IO;
@@ -82,7 +82,7 @@ namespace Com.FurtherSystems.OpenRelay
             //delaySyncQueue = new ConcurrentQueue<EncodeSet[]>();
             delaySyncRawQueue = new ConcurrentQueue<float[]>();
             if (OpusEncode) { decoder = new Decoder(SamplingFrequency.Frequency_24000, NumChannels.Mono);}
-            
+
             source = GetComponent<AudioSource>();
             //OnAudioRead
             //source.clip = AudioClip.Create("VoicePlayer", 1, 1, samplingFrequency, true, OnAudioRead, OnAudioSetPosition);

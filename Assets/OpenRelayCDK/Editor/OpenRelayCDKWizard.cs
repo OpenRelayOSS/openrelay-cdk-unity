@@ -18,7 +18,7 @@ namespace Com.FurtherSystems.OpenRelay
         static void CreateWizard()
         {
         }
-        
+
         void OnWizardCreate()
         {
         }

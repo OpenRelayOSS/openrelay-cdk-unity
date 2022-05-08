@@ -79,11 +79,11 @@ namespace Com.FurtherSystems.OpenRelay
             initialRoomOptions = initial;
             PlayerCount = 0;
         }
-        
+
         public RoomInfo(UpdateDistMapCall setCaller,
             RemoveDistMapCall removeCaller,
             RoomInfo original)
-        { 
+        {
             CopyFromOriginal(original);
             UpdateDistMap = setCaller;
             RemoveDistMap = removeCaller;

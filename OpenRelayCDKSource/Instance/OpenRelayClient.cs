@@ -209,7 +209,7 @@ namespace Com.FurtherSystems.OpenRelay
         private static SubscriberListener subscriberListener;
         private static DealerListener dealerListener;
 
-        public static void RegistCallbacks(IOrCallbacks cbs) 
+        public static void RegistCallbacks(IOrCallbacks cbs)
         {
             OrLog(LogLevel.Info,"Regist callbacks");
             callbacks.Add(cbs);

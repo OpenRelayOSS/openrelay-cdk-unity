@@ -10,7 +10,6 @@
 // OpenRelay Client Scripts.
 // </summary>
 //------------------------------------------------------------------------------
-using MiniJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ namespace Com.FurtherSystems.OpenRelay
         private static void HandleMessage(EndiannessBinaryReader message)
         {
             // TODO fix provisional logics.
-            //if (!_roomJoining || !_roomJoined) return;   
+            //if (!_roomJoining || !_roomJoined) return;
 
             var headerSize = Marshal.SizeOf(typeof(Header));
             var headerBytes = message.ReadBytes(headerSize);
@@ -227,7 +226,7 @@ namespace Com.FurtherSystems.OpenRelay
                     //if (_player != null && _players != null && _players.Count > 0 && _players.Any(x => x.ID == header.SrcPid)) OnSyncVoiceCall((byte)header.ContentCode, content, header.SrcPid, header.SrcOid);
                     //else OrLog(LogLevel.Verbose, "PlayerId: " + header.SrcPid + " addn't yet.");
                     OnSyncStreamCall((byte)header.ContentCode, content, header.SrcPid, header.SrcOid);
-                    
+
                     break;
                 case RelayCode.UNITY_CDK_RELAY:
                     if (!_roomJoined) return;
@@ -552,51 +551,6 @@ namespace Com.FurtherSystems.OpenRelay
             }
         }
 
-        private static readonly char[] rowSeparator = { ';', ';' };
-        private static readonly char[] colSeparator = { ':', ':' };
-        private static void UpdateHashtable(byte[] databyte, byte[] keysbyte, Hashtable hashtable)
-        {
-            var data = Encoding.ASCII.GetString(databyte);
-            var createdHash = new Hashtable();
-            var logDecoded = new StringBuilder();
-            var rows = data.Split(rowSeparator);
-            OrLog(LogLevel.Verbose, "ToHash row counts: " + rows.Length);
-            OrLog(LogLevel.Verbose, "ToHash data bytes: " + System.Environment.NewLine + data);
-            foreach (var row in rows)
-            {
-                var col = row.Split(colSeparator, StringSplitOptions.RemoveEmptyEntries);
-                if (col.Length == 2)
-                {
-                    var decodedKey = Encoding.ASCII.GetString(Convert.FromBase64String(col[0]));
-                    var decodedValue = Encoding.ASCII.GetString(Convert.FromBase64String(col[1]));
-                    createdHash.Add(Json.Deserialize(decodedKey), Json.Deserialize(decodedValue));
-                    if (_settings.LogVerboseLevel >= LogLevel.Verbose) logDecoded.Append("    ").Append(decodedKey).Append(":").Append(decodedValue).Append(System.Environment.NewLine);
-                }
-            }
-            OrLog(LogLevel.Verbose, "ToHash data hash: " + System.Environment.NewLine + logDecoded.ToString());
-            var keysLength = createdHash.Keys.Count;
-            var keys = new object[keysLength];
-            var values = new object[keysLength];
-            createdHash.Keys.CopyTo(keys, 0);
-            createdHash.Values.CopyTo(values, 0);
-            if (keysbyte == null) // null is full copy
-            {
-                for (int index = 0; index < keysLength; index++)
-                {
-                    hashtable[keys[index]] = values[index];
-                }
-            }
-            else // not null is diff copy
-            {
-                var keyslist = ToStringList(keysbyte);
-                for (int index = 0; index < keysLength; index++)
-                {
-                    if (keyslist.Contains(keys[index])) hashtable[keys[index]] = values[index];
-                }
-            }
-            OrLog(LogLevel.Verbose, "Update data hash");
-        }
-
         private static void InitDistMap(UInt32 mergedRevision, UInt32 latestRevision, byte[][] keysBytes, byte[][] valuesBytes,  Dictionary<string, byte[]> dict)
         {
             var createdDict = new Dictionary<string, byte[]>();
@@ -609,33 +563,6 @@ namespace Com.FurtherSystems.OpenRelay
             _room.DistMapLatestRevision = latestRevision;
 
             OrLog(LogLevel.Verbose, "Initialized distributed map");
-        }
-
-        private static byte[] ToBytes(Hashtable data)
-        {
-            var exploded = new StringBuilder();
-            var logDecoded = new StringBuilder();
-            var logEncoded = new StringBuilder();
-            var isFirst = true;
-            OrLog(LogLevel.Verbose, "ToBytes row counts:" + data.Count);
-            foreach (DictionaryEntry d in data)
-            {
-                if (isFirst) isFirst = false; else exploded.Append(rowSeparator);
-
-                var jsonedKey = Json.Serialize(d.Key);
-                var jsonedValue = Json.Serialize(d.Value);
-                var encodedKey = Convert.ToBase64String(Encoding.ASCII.GetBytes(jsonedKey));
-                var encodedValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(jsonedValue));
-                if (_settings.LogVerboseLevel >= LogLevel.Verbose) logDecoded.Append("    ").Append(jsonedKey).Append(":").Append(jsonedValue).Append(System.Environment.NewLine);
-                if (_settings.LogVerboseLevel >= LogLevel.Verbose) logEncoded.Append("    ").Append(encodedKey).Append(":").Append(encodedValue).Append(System.Environment.NewLine);
-
-                exploded.Append(encodedKey)
-                .Append(colSeparator)
-                .Append(encodedValue);
-            }
-            OrLog(LogLevel.Verbose, "ToBytes data hash:" + System.Environment.NewLine + logDecoded.ToString());
-            OrLog(LogLevel.Verbose, "ToBytes data bytes:" + System.Environment.NewLine + logEncoded.ToString());
-            return Encoding.ASCII.GetBytes(exploded.ToString());
         }
 
         private static byte[] ObjectToBytes(Object obj)
@@ -659,31 +586,6 @@ namespace Com.FurtherSystems.OpenRelay
             Object obj = (Object)binForm.Deserialize(memStream);
 
             return obj;
-        }
-
-        private static string[] ToStringList(byte[] data)
-        {
-            var decoded = Encoding.ASCII.GetString(data);
-            var createdList = new List<string>();
-            foreach (var row in decoded.Split(rowSeparator))
-            {
-                if (row.Length > 0)
-                {
-                    createdList.Add(Encoding.ASCII.GetString(Convert.FromBase64String(row)));
-                }
-            }
-            return createdList.ToArray();
-        }
-
-        private static byte[] ToExplodeBytes(string[] list)
-        {
-            StringBuilder exploded = new StringBuilder();
-            foreach (var e in list)
-            {
-                exploded.Append(Convert.ToBase64String(Encoding.ASCII.GetBytes(e)))
-                    .Append(rowSeparator);
-            }
-            return Encoding.ASCII.GetBytes(exploded.ToString());
         }
 
         public static DateTime ToDateTimeFromUnix(int unixTimeStamp)
